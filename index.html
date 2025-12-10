@@ -1,0 +1,3011 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>B1ux 美工之旅 Promax</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --primary: #54a3ff;
+      --primary-soft: #e7f2ff;
+      --primary-deep: #2d7fe8;
+      --bg-body: #f5f7fb;
+      --bg-card: #ffffff;
+      --text-main: #1f2933;
+      --text-sub: #6b7280;
+      --radius-lg: 16px;
+      --shadow-soft: 0 10px 24px rgba(26,115,232,.12);
+      --border-soft: 1px solid #e2e8f0;
+      --success: #16a34a;
+      --success-bg: #e8faf0;
+      --danger: #ef4444;
+      --danger-bg: #fee2e2;
+      --warn: #f59e0b;
+      --warn-bg: #fef3c7;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+      background:radial-gradient(circle at top,#e3f0ff 0,#f5f7fb 40%,#f5f7fb 100%);
+      color:var(--text-main);
+    }
+    .page{
+      max-width:1100px;
+      margin:32px auto 64px;
+      padding:0 16px;
+    }
+    header.app-header{
+      border-radius:24px;
+      padding:18px 20px;
+      background:linear-gradient(135deg,#74b9ff 0%,#a29bfe 45%,#6c5ce7 100%);
+      color:#fff;
+      box-shadow:0 18px 45px rgba(88,143,255,.35);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .header-left h1{
+      margin:0;
+      font-size:22px;
+      white-space:nowrap;
+    }
+    .header-sub{
+      font-size:12px;
+      opacity:.9;
+      margin-top:4px;
+    }
+    .header-actions{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    /* 按钮样式优化 */
+    .btn,.btn-outline,.btn-danger,.btn-edit,.btn-secondary{
+      border-radius:999px;
+      border:none;
+      font-size:13px;
+      padding:6px 12px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      white-space:nowrap;
+      transition:.12s;
+      font-weight:500;
+    }
+    .btn{background:#fff;color:var(--primary-deep);box-shadow:0 6px 18px rgba(15,23,42,.16);}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(15,23,42,.18);}
+    
+    /* 大部分背景是白色的，所以 outline 按钮改成深色文字或者浅蓝背景 */
+    .btn-outline{
+      background:transparent;
+      color:#fff; /* 仅在深色背景(Header)使用 */
+      border:1px solid rgba(255,255,255,.75);
+    }
+    .btn-outline:hover{background:rgba(255,255,255,.18);}
+    
+    /* 新增：用于白色卡片上的次级按钮 */
+    .btn-secondary {
+      background: var(--primary-soft);
+      color: var(--primary-deep);
+    }
+    .btn-secondary:hover {
+      background: #dbeafe;
+    }
+
+    .btn-sm{padding:4px 10px;font-size:12px;box-shadow:none;}
+    .btn-danger{background:var(--danger-bg);color:var(--danger);}
+    .btn-edit{background:var(--warn-bg);color:var(--warn);}
+    
+    main.main{margin-top:20px;}
+    .stats-row{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+    }
+    .stat-card{
+      background:#fff;
+      border-radius:18px;
+      padding:10px 12px;
+      box-shadow:var(--shadow-soft);
+      position:relative;
+      overflow:hidden;
+    }
+    .stat-label{
+      font-size:12px;
+      color:var(--text-sub);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .stat-tag{
+      font-size:11px;
+      padding:2px 8px;
+      border-radius:999px;
+      background:#eef2ff;
+      color:#4338ca;
+    }
+    .stat-value{
+      margin-top:6px;
+      font-size:20px;
+      font-weight:700;
+      color:var(--primary-deep);
+    }
+    .stat-sub{
+      font-size:12px;
+      color:var(--text-sub);
+      margin-top:2px;
+    }
+    .tabs{
+      margin-top:22px;
+      display:flex;
+      gap:8px;
+      overflow-x:auto;
+      padding-bottom:4px;
+    }
+    .tabs::-webkit-scrollbar{height:4px;}
+    .tabs::-webkit-scrollbar-thumb{background:#d0ddf5;border-radius:999px;}
+    .tab-btn{
+      border-radius:999px;
+      border:1px solid transparent;
+      background:rgba(255,255,255,.9);
+      padding:6px 12px;
+      font-size:13px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      color:var(--text-sub);
+      box-shadow:0 4px 14px rgba(15,23,42,.08);
+      flex-shrink:0;
+    }
+    .tab-btn.active{
+      background:#fff;
+      color:var(--primary-deep);
+      border-color:rgba(84,163,255,.7);
+      box-shadow:0 8px 20px rgba(84,163,255,.2);
+    }
+    .tab-panel{display:none;margin-top:14px;}
+    .tab-panel.active{display:block;}
+    .card{
+      background:var(--bg-card);
+      border-radius:var(--radius-lg);
+      box-shadow:var(--shadow-soft);
+      padding:16px 16px 14px;
+      margin-bottom:18px;
+    }
+    .section-title{
+      margin:0 0 10px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      white-space:nowrap;
+    }
+    .section-title::before{
+      content:"";
+      width:4px;
+      height:18px;
+      border-radius:999px;
+      background:var(--primary);
+    }
+    .section-title span.sub{
+      font-size:12px;
+      color:var(--text-sub);
+      font-weight:400;
+    }
+    .grid-two{
+      display:grid;
+      grid-template-columns:minmax(0,7fr) minmax(0,5fr);
+      gap:14px;
+    }
+    .field-row{
+      display:flex;
+      gap:10px;
+      margin-bottom:8px;
+      flex-wrap:wrap;
+    }
+    .field{
+      flex:1 1 0;
+      min-width:130px;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    label{font-size:12px;color:var(--text-sub);}
+    input[type=text],input[type=number],input[type=date],input[type=month],textarea,select{
+      border-radius:10px;
+      border:1px solid #d1d9e6;
+      padding:6px 8px;
+      font-size:13px;
+      outline:none;
+      background:#fbfcff;
+      transition:.12s;
+    }
+    input:focus,textarea:focus,select:focus{
+      border-color:var(--primary);
+      box-shadow:0 0 0 1px rgba(84,163,255,.25);
+      background:#fff;
+    }
+    textarea{resize:vertical;min-height:60px;}
+    .pill-switch{
+      display:inline-flex;
+      border-radius:999px;
+      background:#edf2ff;
+      padding:2px;
+    }
+    .pill-switch button{
+      border-radius:999px;
+      border:none;
+      padding:4px 10px;
+      font-size:12px;
+      background:transparent;
+      color:var(--text-sub);
+      cursor:pointer;
+    }
+    .pill-switch button.active{
+      background:#fff;
+      color:var(--primary-deep);
+      box-shadow:0 2px 8px rgba(15,23,42,.15);
+    }
+    .edit-bar{
+      display:none;
+      margin-bottom:10px;
+      border-radius:12px;
+      background:var(--warn-bg);
+      padding:6px 10px;
+      font-size:12px;
+      color:#92400e;
+      justify-content:space-between;
+      align-items:center;
+      gap:6px;
+    }
+    .edit-bar.show{display:flex;}
+    .set-rows{
+      border-radius:10px;
+      border:var(--border-soft);
+      padding:6px;
+      background:#f9fbff;
+      max-height:210px;
+      overflow-y:auto;
+    }
+    .row-group{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      background:#fff;
+      border-radius:999px;
+      padding:3px 8px;
+      margin:3px 4px 3px 0;
+      box-shadow:0 1px 5px rgba(15,23,42,.12);
+      cursor:grab;
+    }
+    .row-group input,.row-group select{width:110px;}
+    .row-group .drag{font-size:13px;color:#9ca3af;}
+    .row-group .del{
+      border:none;
+      border-radius:999px;
+      padding:0 6px;
+      font-size:12px;
+      background:#fee2e2;
+      color:#b91c1c;
+      cursor:pointer;
+    }
+    /* 单品模式下隐藏删除按钮 */
+    .row-group.single-mode .del {
+      display: none;
+    }
+
+    .upload-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(60px,1fr));
+      gap:6px;
+      margin-top:6px;
+    }
+    .img-box{
+      position:relative;
+      border-radius:10px;
+      overflow:hidden;
+      background:#e5edf9;
+      cursor:grab;
+    }
+    .img-box img{
+      width:100%;
+      height:60px;
+      object-fit:cover;
+      display:block;
+    }
+    .img-box span.idx{
+      position:absolute;
+      left:4px;
+      top:3px;
+      font-size:11px;
+      background:rgba(15,23,42,.6);
+      color:#fff;
+      padding:1px 4px;
+      border-radius:999px;
+    }
+    .img-box button.rm{
+      position:absolute;
+      right:4px;
+      top:3px;
+      border:none;
+      border-radius:999px;
+      padding:0 4px;
+      font-size:11px;
+      background:rgba(0,0,0,.55);
+      color:#fff;
+      cursor:pointer;
+    }
+    .calendar-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:8px;
+    }
+    .calendar-grid{
+      display:grid;
+      grid-template-columns:repeat(7,minmax(0,1fr));
+      gap:4px;
+    }
+    .cal-cell-head{
+      font-size:11px;
+      text-align:center;
+      color:var(--text-sub);
+      padding-bottom:4px;
+    }
+    .cal-cell{
+      background:#fff;
+      border-radius:12px;
+      min-height:72px;
+      padding:4px 4px 3px;
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      box-shadow:0 1px 4px rgba(148,163,184,.35);
+    }
+    .cal-cell.other-month{background:#f3f4f8;opacity:.7;}
+    .cal-day-num{
+      font-size:20px;
+      font-weight:800;
+      text-align:center;
+      color:#cbd2e8;
+    }
+    .cal-cell.today{
+      box-shadow:0 0 0 2px rgba(84,163,255,.7);
+      background:#eef3ff;
+    }
+    .cal-cell.today .cal-day-num{color:#111827;}
+    .cal-event{
+      border-radius:999px;
+      padding:1px 6px;
+      font-size:11px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      cursor:pointer;
+    }
+    .cal-event.done{background:var(--success-bg);color:var(--success);}
+    .cal-event.pending{background:var(--danger-bg);color:var(--danger);}
+    .todo-list{
+      margin-top:10px;
+      border-radius:12px;
+      border:var(--border-soft);
+      padding:8px;
+      background:#f9fafb;
+      max-height:220px;
+      overflow-y:auto;
+      font-size:12px;
+    }
+    .todo-item{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:4px 2px;
+      border-bottom:1px dashed #e5e7eb;
+      cursor:pointer;
+    }
+    .todo-item:last-child{border-bottom:none;}
+    .gallery-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+      gap:10px;
+      margin-top:8px;
+    }
+    .card-item {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, .14);
+      overflow: hidden;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s; /* 增加 opacity 过渡 */
+    }
+    /* 新增：拖拽时的样式 */
+    .card-item.dragging {
+      opacity: 0.4;
+      border: 2px dashed var(--primary);
+    }
+    .card-item:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(15,23,42,.18);}
+    
+    /* === 请完全替换以下 CSS (终极强制版) === */
+
+    /* 1. 【列表页】大封面容器：定死正方形 */
+    .card-img {
+      width: 100%;
+      aspect-ratio: 1 / 1;     /* 强制宽高比 1:1 */
+      background: #e5edf9;
+      position: relative;      /* 作为定位基准 */
+      overflow: hidden;        /* 裁掉超出的部分 */
+      /* 注意：这里去掉了 display: flex，避免干扰内部的绝对定位 */
+    }
+
+    /* 2. 【列表页】单张普通图片 */
+    .card-img > img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+
+    /* 3. 【列表页】拼图网格容器：使用绝对定位强制撑满 */
+    .cover-grid {
+      display: grid;
+      position: absolute;      /* 核心修改：脱离文档流，强制填满父容器 */
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      gap: 2px;
+      background: #fff;
+    }
+
+    /* 四宫格 */
+    .cover-grid.g-4 {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+    }
+
+    /* 九宫格 */
+    .cover-grid.g-9 {
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: 1fr 1fr 1fr;
+    }
+
+    /* 4. 【列表页】拼图小图片：强制填满格子 */
+    .cover-grid img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;    /* 必须裁切 */
+      object-position: center !important;
+      display: block;
+      min-height: 0;                   /* 修复部分浏览器 Grid 高度溢出 bug */
+    }
+    
+    /* 5. 【列表页】无预览文字提示 (垂直居中) */
+    .card-img-empty {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    /* 6. 【详情页】详情图容器 (保持原样，不裁切) */
+    .detail-images {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 6px;
+    }
+
+    .detail-images img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: auto;
+      object-fit: contain;
+      border-radius: 10px;
+      display: block;
+    }
+
+    .card-body{
+      padding:6px 8px 8px;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1; /* 标题占据剩余空间 */
+    }
+    /* 新增：卡片文字区域的头部行，用于左右排列 标题 和 图标 */
+    .card-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 2px;
+    }
+    .card-sub{
+      font-size:12px;
+      color:var(--text-sub);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .pin-btn {
+      /* 原来的 position: absolute; remove掉 */
+      border: none;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 11px;
+      background: #f1f5f9; /* 平时是浅灰色 */
+      color: var(--text-sub);
+      cursor: pointer;
+      flex-shrink: 0; /* 防止被挤压 */
+      margin-left: 8px;
+    }
+    /* 激活状态：蓝色 */
+    .pin-btn.pinned {
+      background: var(--primary-soft);
+      color: var(--primary-deep);
+      font-weight: bold;
+    }
+    .empty-tip{font-size:13px;color:var(--text-sub);margin-top:6px;}
+    .clients-grid{
+      display:grid;
+      grid-template-columns:minmax(0,5fr) minmax(0,7fr);
+      gap:14px;
+    }
+    .non-client-list{
+      border-radius:12px;
+      border:var(--border-soft);
+      padding:6px 8px;
+      background:#f9fafb;
+      max-height:230px;
+      overflow-y:auto;
+      font-size:13px;
+    }
+    .non-client-item{
+      padding:4px 2px;
+      border-bottom:1px dashed #e5e7eb;
+      cursor:pointer;
+    }
+    .non-client-item:last-child{border-bottom:none;}
+    .client-table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+    }
+    .client-table th,.client-table td{
+      padding:5px 4px;
+      border-bottom:1px solid #e5e7eb;
+      text-align:left;
+    }
+    .client-table th{font-size:12px;color:var(--text-sub);}
+    .client-table tbody tr:hover{background:#eef2ff;}
+    .rank-item{padding:6px 2px 8px;}
+    .rank-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:13px;
+    }
+    .rank-name{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    .rank-medal{font-size:15px;}
+    .rank-bar-bg{
+      margin-top:4px;
+      width:100%;
+      height:6px;
+      border-radius:999px;
+      background:#e5edff;
+      overflow:hidden;
+    }
+    .rank-bar{
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg,#54a3ff,#6c5ce7);
+      width:0%;
+    }
+    .mat-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+      gap:10px;
+      margin-top:6px;
+    }
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,.35);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:40;
+    }
+    .modal.show{display:flex;}
+    .modal-card{
+      background:#fff;
+      border-radius:18px;
+      box-shadow:0 18px 40px rgba(15,23,42,.55);
+      max-width:840px;
+      width:94%;
+      max-height:90vh;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+    .modal-header{
+      padding:10px 14px;
+      border-bottom:1px solid #e5e7eb;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+    }
+    .modal-header h3{margin:0;font-size:16px;}
+    .modal-close{
+      border:none;
+      border-radius:999px;
+      width:26px;
+      height:26px;
+      background:#e5e7eb;
+      cursor:pointer;
+    }
+    .modal-body{
+      padding:10px 14px 14px;
+      overflow-y:auto;
+      font-size:13px;
+    }
+    .detail-layout{
+      display:grid;
+      grid-template-columns:minmax(0,6fr) minmax(0,5fr);
+      gap:12px;
+    }
+    .detail-tags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-bottom:6px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      border-radius:999px;
+      padding:2px 8px;
+      font-size:11px;
+      background:#eef2ff;
+      color:#4338ca;
+    }
+    .badge.success{background:var(--success-bg);color:var(--success);}
+    .badge.danger{background:var(--danger-bg);color:var(--danger);}
+    .badge.warn{background:var(--warn-bg);color:var(--warn);}
+    .detail-rem{
+      margin-top:6px;
+      background:var(--warn-bg);
+      border-radius:10px;
+      padding:6px 8px;
+      color:#92400e;
+      font-size:12px;
+    }
+    .modal-footer{
+      padding:8px 14px 10px;
+      border-top:1px solid #e5e7eb;
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+    }
+    .price-table{font-size:13px;margin-top:4px;}
+    .price-row{
+      display:flex;
+      gap:6px;
+      align-items:center;
+      margin-bottom:4px;
+    }
+    .price-row input,.price-row select{
+      border-radius:8px;
+      border:1px solid #d1d9e6;
+      padding:4px 6px;
+      font-size:13px;
+    }
+    .backup-row{
+      font-size:12px;
+      color:var(--text-sub);
+      margin-top:4px;
+    }
+    @media(max-width:840px){
+      .grid-two,.clients-grid,.detail-layout{grid-template-columns:1fr;}
+      .stats-row{grid-template-columns:repeat(2,minmax(0,1fr));}
+    }
+    @media(max-width:640px){
+      .stats-row{grid-template-columns:1fr;}
+      header.app-header{flex-direction:column;align-items:flex-start;}
+      .header-actions{justify-content:flex-start;}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="app-header">
+      <div class="header-left">
+        <h1>B1ux 的美工之旅</h1>
+        <div class="header-sub">2025.6 至今</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-outline btn-sm" id="btnPrice">⚙️ 价格表</button>
+        <button class="btn-outline btn-sm" id="btnExport">💾 导出备份</button>
+        <button class="btn-outline btn-sm" id="btnImport">📂 导入备份</button>
+        <input id="fileImport" type="file" accept="application/json" style="display:none" />
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">
+            <span>累计作品收入</span><span class="stat-tag">已定稿</span>
+          </div>
+          <div class="stat-value" id="statIncome">¥0.00</div>
+          <div class="stat-sub" id="statNet">净收入：¥0.00</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">
+            <span>素材支出</span><span class="stat-tag" style="background:#fee2e2;color:#b91c1c;">买买买</span>
+          </div>
+          <div class="stat-value" id="statExpense">-¥0.00</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">
+            <span>交付作品 / 素材库</span><span class="stat-tag">数量</span>
+          </div>
+          <div class="stat-value" id="statCount">0 / 0</div>
+        </div>
+      </section>
+
+      <nav class="tabs">
+        <button class="tab-btn active" data-tab="upload">➕ 记一笔</button>
+        <button class="tab-btn" data-tab="calendar">🗓️ 当前排单</button>
+        <button class="tab-btn" data-tab="gallery">🎨 作品集</button>
+        <button class="tab-btn" data-tab="feedback">📸 返图墙</button>
+        <button class="tab-btn" data-tab="materials">📦 素材库</button>
+        <button class="tab-btn" data-tab="clients">🎀 客妹们</button>
+        <button class="tab-btn" data-tab="analysis">📊 详细统计</button>
+      </nav>
+
+      <section class="tab-panel active" id="tab-upload">
+        <div class="edit-bar" id="editBar">
+          <span>📝 正在编辑旧记录… 再次提交将覆盖原作品。</span>
+          <button type="button" class="btn-outline btn-sm" id="btnCancelEdit" style="color:#92400e;border-color:#92400e;">取消编辑</button>
+        </div>
+        <div class="grid-two">
+          <div class="card">
+            <h2 class="section-title">✨ 录入作品收入 <span class="sub">单品 / Set 组合</span></h2>
+            <form id="workForm">
+              <div class="field-row">
+                <div class="field">
+                  <label>属性</label>
+                  <input type="text" id="workAttr" placeholder="今屿" />
+                  <div style="font-size:11px;color:var(--text-sub);">命名：属性 + 空格 + (制品名 / set) + 自动编号</div>
+                </div>
+                <div class="field">
+                  <label>客户名</label>
+                  <input list="clientList" type="text" id="workClient" placeholder="B1ux" />
+                  <datalist id="clientList"></datalist>
+                </div>
+              </div>
+
+              <div class="field-row" style="align-items:center;">
+                <div class="field" style="flex:0 0 auto;">
+                  <label>作品模式</label>
+                  <div class="pill-switch" id="typeSwitch">
+                    <button type="button" data-type="single" class="active">单品</button>
+                    <button type="button" data-type="set">Set 组合</button>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>使用权</label>
+                  <select id="workUsage">
+                    <option value="自用">自用</option>
+                    <option value="商用">商用</option>
+                    <option value="买断">买断</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>公开性</label>
+                  <select id="workVisibility">
+                    <option value="公开">公开</option>
+                    <option value="不公开">不公开</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>制品明细</label>
+                <div class="set-rows" id="setRows"></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+                  <span id="setHint" style="font-size:11px;color:var(--text-sub);">
+                    单品：默认一条制品；Set：按成品顺序添加各个制品。
+                  </span>
+                  <button type="button" class="btn-edit btn-sm" id="btnAddRow" style="display:none;">+ 添加子制品</button>
+                </div>
+              </div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label>原价合计 (¥)</label>
+                  <input type="number" id="workRaw" step="0.01" />
+                </div>
+                <div class="field">
+                  <label>折扣（0 = 无偿）</label>
+                  <input type="number" id="workDiscount" min="0" max="1" step="0.01" value="1" />
+                </div>
+                <div class="field">
+                  <label>实收金额 (¥)</label>
+                  <input type="number" id="workAmount" step="0.01" />
+                </div>
+              </div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label>定稿日期（完成）</label>
+                  <input type="date" id="workDate" />
+                </div>
+                <div class="field">
+                  <label>截止日期（排单）</label>
+                  <input type="date" id="workDue" />
+                </div>
+              </div>
+
+              <div class="field">
+                <label>作品图（0 ~ 10 张）</label>
+                <button type="button" class="btn-secondary btn-sm" id="btnPickWorkImg">📁 选择图片</button>
+                <input id="workImagesInput" type="file" accept="image/*" multiple style="display:none;" />
+                <div class="upload-grid" id="workImgGrid"></div>
+                <label style="font-size:11px;margin-top:2px;">
+                  <input type="checkbox" id="chkOverview" /> 最后一张为总览图
+                </label>
+              </div>
+
+              <div class="field">
+                <label>返图（0 ~ 10 张）</label>
+                <button type="button" class="btn-secondary btn-sm" id="btnPickFeedbackImg">📸 上传返图</button>
+                <input id="feedbackImagesInput" type="file" accept="image/*" multiple style="display:none;" />
+                <div class="upload-grid" id="feedbackImgGrid"></div>
+              </div>
+
+              <div class="field">
+                <label>备注</label>
+                <textarea id="workRemark"></textarea>
+              </div>
+
+              <div style="text-align:right;margin-top:8px;">
+                <button type="submit" class="btn" id="btnSubmitWork">提交作品收入</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <h2 class="section-title">💸 录入素材支出</h2>
+            <form id="matForm">
+              <div class="field-row">
+                <div class="field">
+                  <label>素材名称</label>
+                  <input type="text" id="matName" />
+                </div>
+                <div class="field">
+                  <label>商家</label>
+                  <input type="text" id="matMerchant" />
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label>金额 (¥)</label>
+                  <input type="number" id="matPrice" step="0.01" />
+                </div>
+                <div class="field">
+                  <label>购买日期</label>
+                  <input type="date" id="matDate" />
+                </div>
+              </div>
+              <div class="field">
+                <label>备注</label>
+                <textarea id="matRemark"></textarea>
+              </div>
+              <div style="text-align:right;margin-top:8px;">
+                <button type="submit" class="btn-danger btn-sm">记录支出</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-calendar">
+        <div class="card">
+          <h2 class="section-title">🗓️ 当前排单 <span class="sub">只有截止日期 = 排单；只有定稿日期 = 已完成</span></h2>
+          <div class="calendar-header">
+            <div>
+              <button type="button" class="btn-secondary btn-sm" id="btnPrevMonth">⬅ 上月</button>
+              <button type="button" class="btn-secondary btn-sm" id="btnNextMonth">下月 ➡</button>
+            </div>
+            <input type="month" id="monthInput" />
+          </div>
+          <div class="calendar-grid" id="calendarHead"></div>
+          <div class="calendar-grid" id="calendarBody"></div>
+          <div class="todo-list">
+            <div style="margin-bottom:4px;">📋 待办清单（当前月份，仅有截止日期的排单）</div>
+            <div id="todoList"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-gallery">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h2 class="section-title">🎨 作品集 <span class="sub">只显示已定稿作品</span></h2>
+            <select id="selSortWorks" style="max-width:150px;">
+              <option value="custom">自定义 / 置顶优先</option>
+              <option value="timeDesc">时间：新 → 旧</option>
+              <option value="timeAsc">时间：旧 → 新</option>
+            </select>
+          </div>
+          <div class="gallery-grid" id="workGrid"></div>
+          <div class="empty-tip" id="workEmpty">还没有定稿作品，可以先在「记一笔」里保存。</div>
+          <hr style="border:none;border-top:1px dashed #e5e7eb;margin:12px 0;" />
+          <h3 class="section-title" style="font-size:14px;">制品相册 <span class="sub">按制品名自动分文件夹</span></h3>
+          <div class="gallery-grid" id="albumGrid"></div>
+          <div class="empty-tip" id="albumEmpty">暂无制品相册。</div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-feedback">
+        <div class="card">
+          <h2 class="section-title">📸 返图墙 <span class="sub">正主认证 / 制品返图</span></h2>
+          <div style="font-size:12px;color:var(--text-sub);margin-bottom:6px;">
+            默认全部为「制品返图」，在作品详情中可将部分标记为「正主认证」。
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;">
+            <div style="flex:1 1 260px;">
+              <span class="badge success">🏆 正主认证</span>
+              <div class="gallery-grid" id="fbOfficialGrid" style="margin-top:6px;"></div>
+              <div class="empty-tip" id="fbOfficialEmpty">暂无正主认证返图。</div>
+            </div>
+            <div style="flex:1 1 260px;">
+              <span class="badge">🎁 制品返图</span>
+              <div class="gallery-grid" id="fbProductGrid" style="margin-top:6px;"></div>
+              <div class="empty-tip" id="fbProductEmpty">暂无制品返图。</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-materials">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h2 class="section-title">📦 素材库</h2>
+            <select id="selSortMat" style="max-width:150px;">
+              <option value="timeDesc">时间：新 → 旧</option>
+              <option value="timeAsc">时间：旧 → 新</option>
+              <option value="priceDesc">金额：高 → 低</option>
+            </select>
+          </div>
+          <div style="font-size:12px;color:#b91c1c;margin-bottom:4px;">总支出：<span id="matTotal">¥0.00</span></div>
+          <div class="mat-grid" id="matGrid"></div>
+          <div class="empty-tip" id="matEmpty">素材库还是空的。</div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-clients">
+        <div class="card">
+          <h2 class="section-title">🎀 客妹们 <span class="sub">非客单 & 贡献榜</span></h2>
+          <div class="clients-grid">
+            <div>
+              <span class="badge">非客单 · B1ux</span>
+              <div class="non-client-list" id="nonClientList"></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <span class="badge">贡献榜</span>
+                <select id="selClientSort" style="max-width:150px;">
+                  <option value="amountDesc">💰 按金额</option>
+                  <option value="timeAsc">📅 按入坑时间</option>
+                </select>
+              </div>
+              <table class="client-table">
+                <thead>
+                  <tr>
+                    <th style="width:40px;">名次</th>
+                    <th>客妹</th>
+                    <th>约稿次数</th>
+                    <th>贡献总额</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="clientTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-analysis">
+        <div class="card">
+          <h2 class="section-title">📊 制品数量排行 <span class="sub">只统计已定稿作品</span></h2>
+          <div style="font-size:12px;color:var(--text-sub);margin-bottom:6px;">
+            Set 内每个制品单独 +1，例如「今屿 Set」中含 Logo + 手幅，则 Logo 和手幅各记一次。
+          </div>
+          <div id="rankList"></div>
+          <div class="empty-tip" id="rankEmpty">还没有统计数据。</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="detailModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="detailTitle">作品详情</h3>
+        <button class="modal-close" data-close="detailModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-layout">
+          <div>
+            <div class="detail-tags" id="detailTags"></div>
+            <div class="detail-images" id="detailImages"></div>
+            <div style="margin-top:8px;">
+              <span class="badge">📸 返图</span>
+              <div class="detail-images" id="detailFeedbackImgs" style="margin-top:4px;"></div>
+              <div id="detailFeedbackEmpty" style="font-size:12px;color:var(--text-sub);">暂无返图。</div>
+            </div>
+          </div>
+          <div>
+            <div id="detailClient"></div>
+            <div id="detailDates"></div>
+            <div id="detailMoney"></div>
+            <div id="detailItems"></div>
+            <div id="detailRemark" class="detail-rem" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-edit btn-sm" id="btnEditDetail">✏️ 修改</button>
+        <button class="btn-danger btn-sm" id="btnDeleteDetail">🗑️ 删除</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="priceModal">
+    <div class="modal-card" style="max-width:620px;">
+      <div class="modal-header">
+        <h3>⚙️ 价格表</h3>
+        <button class="modal-close" data-close="priceModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:12px;color:var(--text-sub);margin-bottom:4px;">
+          手动维护：制品名 + 类型（七种）+ 默认单价。录入作品时可选择并自动带出单价，也可以现场修改。
+        </div>
+        <div class="price-table" id="priceTable"></div>
+      </div>
+      <div class="modal-footer" style="justify-content:space-between;">
+        <button type="button" class="btn btn-sm" id="btnAddPriceRow">+ 新增一行</button>
+        <button type="button" class="btn btn-sm" id="btnSavePrice">更新价格表</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="clientModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="clientModalTitle">客妹作品</h3>
+        <button class="modal-close" data-close="clientModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="backup-row">
+          暂不提供一键改名；需要改名时，可以在作品详情中修改客户名后重新保存。
+        </div>
+        <div id="clientWorksList" style="margin-top:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <datalist id="typeList"></datalist>
+  <script>
+    // ========= 基础数据结构 =========
+    const DB_NAME = 'B1uxArtStudioDB_v2';
+    const DB_VERSION = 1;
+    let idb = null;
+
+    let db = {
+      works: [],
+      materials: [],
+      priceConfig: []
+    };
+
+    let currentMonthDate = null;
+    let editingWorkId = null;
+    let detailCurrentId = null;
+
+    let workImgBuffer = [];
+    let feedbackImgBuffer = [];
+
+    // ========= 时间工具（统一北京时间） =========
+    function getBeijingNow() {
+      const now = new Date();
+      const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+      return new Date(utc + 8 * 3600000);
+    }
+
+    function getBeijingTodayDate() {
+      const d = getBeijingNow();
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    }
+
+    function formatDate(d) {
+      if (!d) return '';
+      const pad = n => (n < 10 ? '0' + n : '' + n);
+      return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+    }
+
+    // ========= IndexedDB =========
+    function openDB() {
+      return new Promise(resolve => {
+        if (!('indexedDB' in window)) {
+          resolve();
+          return;
+        }
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = e => {
+          const dbi = e.target.result;
+          if (!dbi.objectStoreNames.contains('main')) {
+            dbi.createObjectStore('main', { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = e => {
+          idb = e.target.result;
+          resolve();
+        };
+        req.onerror = () => {
+          console.warn('IndexedDB 打开失败，只在内存中运行。');
+          resolve();
+        };
+      });
+    }
+
+    function loadData() {
+      return new Promise(resolve => {
+        if (!idb) { resolve(); return; }
+        const tx = idb.transaction('main', 'readonly');
+        const store = tx.objectStore('main');
+        const req = store.get('b1ux-data');
+        req.onsuccess = () => {
+          if (req.result && req.result.data) {
+            db = req.result.data;
+            if (!db.works) db.works = [];
+            if (!db.materials) db.materials = [];
+            if (!db.priceConfig) db.priceConfig = [];
+          }
+          resolve();
+        };
+        req.onerror = () => resolve();
+      });
+    }
+
+    function saveData() {
+      return new Promise(resolve => {
+        if (!idb) { resolve(); return; }
+        const tx = idb.transaction('main', 'readwrite');
+        const store = tx.objectStore('main');
+        store.put({ id: 'b1ux-data', data: db });
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => resolve();
+      });
+    }
+
+    // ========= 小工具 =========
+    function nextId(list) {
+      let max = 0;
+      list.forEach(it => {
+        if (typeof it.id === 'number' && it.id > max) max = it.id;
+      });
+      return max + 1;
+    }
+
+    function money(n) {
+      const x = Number(n || 0);
+      return '¥' + x.toFixed(2);
+    }
+
+    function getCurrentType() {
+      const btns = document.querySelectorAll('#typeSwitch button');
+      for (const b of btns) {
+        if (b.classList.contains('active')) return b.dataset.type;
+      }
+      return 'single';
+    }
+
+    function ensureCurrentMonth() {
+      if (!currentMonthDate) {
+        const today = getBeijingTodayDate();
+        currentMonthDate = new Date(today.getFullYear(), today.getMonth(), 1);
+      }
+    }
+
+    function setMonthInput() {
+      ensureCurrentMonth();
+      const y = currentMonthDate.getFullYear();
+      const m = currentMonthDate.getMonth() + 1;
+      const pad = n => (n < 10 ? '0' + n : '' + n);
+      const monthInput = document.getElementById('monthInput');
+      monthInput.value = y + '-' + pad(m);
+    }
+
+    function clearWorkForm() {
+      document.getElementById('workAttr').value = '';
+      document.getElementById('workClient').value = '';
+      document.getElementById('workUsage').value = '自用';
+      document.getElementById('workVisibility').value = '公开';
+      document.getElementById('workRaw').value = '';
+      document.getElementById('workDiscount').value = '1';
+      document.getElementById('workAmount').value = '';
+      document.getElementById('workDate').value = '';
+      document.getElementById('workDue').value = '';
+      document.getElementById('workRemark').value = '';
+      document.getElementById('chkOverview').checked = false;
+      workImgBuffer = [];
+      feedbackImgBuffer = [];
+      renderWorkPreview();
+      renderFeedbackPreview();
+      
+      // 重置为单品模式
+      const btns = document.querySelectorAll('#typeSwitch button');
+      btns.forEach(b => b.classList.remove('active'));
+      btns[0].classList.add('active'); // 单品 active
+      initSetRowsForType('single');
+    }
+
+    // ========= Set 行 & 价格联动 =========
+    // 核心修复：初始化时根据类型决定“添加”按钮显隐，并刷新行的样式
+    function initSetRowsForType(type) {
+      const wrap = document.getElementById('setRows');
+      wrap.innerHTML = '';
+      addSetRow(); // 默认加一行
+      
+      const btnAdd = document.getElementById('btnAddRow');
+      const hint = document.getElementById('setHint');
+      
+      if (type === 'set') {
+        btnAdd.style.display = 'inline-flex'; // Set模式显示按钮
+        hint.textContent = 'Set：按最终成品顺序添加各个制品（Logo / 手幅等）。';
+      } else {
+        btnAdd.style.display = 'none'; // 单品模式隐藏按钮
+        hint.textContent = '单品：保留一条制品即可。';
+      }
+      
+      // 刷新所有行的删除按钮状态
+      updateAllRowsDeleteState(type);
+    }
+
+    function updateAllRowsDeleteState(type) {
+      const rows = document.querySelectorAll('#setRows .row-group');
+      rows.forEach(row => {
+        if (type === 'single') {
+          row.classList.add('single-mode'); // CSS中隐藏 .del
+        } else {
+          row.classList.remove('single-mode');
+        }
+      });
+    }
+
+    function addSetRow(name = '', subtype = '默认单面', price = '', rate = '1', customRate = '') {
+      const wrap = document.getElementById('setRows');
+      const row = document.createElement('div');
+      row.className = 'row-group';
+      if (getCurrentType() === 'single') {
+        row.classList.add('single-mode');
+      }
+      
+      row.draggable = true;
+      // 注意：这里增加了 .row-rate (下拉框) 和 .row-rate-custom (自定义数字)
+      row.innerHTML = `
+        <span class="drag">☰</span>
+        <input type="text" list="typeList" placeholder="制品名" class="row-name" style="width:100px;">
+        <select class="row-subtype" style="width:85px;">
+          <option value="默认单面">默认单面</option>
+          <option value="默认双面">默认双面</option>
+          <option value="单面">单面</option>
+          <option value="双面">双面</option>
+          <option value="三面">三面</option>
+          <option value="四面">四面</option>
+          <option value="自定义">自定义</option>
+        </select>
+        
+        <select class="row-rate" style="width:75px;background:#f0f9ff;border-color:#b9e0ff;">
+          <option value="1">自用 *1</option>
+          <option value="1.8">商用 *1.8</option>
+          <option value="2.5">买断 *2.5</option>
+          <option value="0">无偿 *0</option>
+          <option value="custom">自定义</option>
+        </select>
+        <input type="number" step="0.1" class="row-rate-custom" placeholder="倍数" style="width:50px;display:none;background:#f0f9ff;" />
+
+        <input type="number" step="0.01" placeholder="单价" class="row-price" style="width:80px;">
+        <button type="button" class="del">×</button>
+      `;
+      wrap.appendChild(row);
+
+      const nameInput = row.querySelector('.row-name');
+      const subtypeSelect = row.querySelector('.row-subtype');
+      const rateSelect = row.querySelector('.row-rate');
+      const custRateInput = row.querySelector('.row-rate-custom');
+      const priceInput = row.querySelector('.row-price');
+
+      if (name) nameInput.value = name;
+      if (subtype) subtypeSelect.value = subtype;
+      if (rate) rateSelect.value = rate;
+      // 如果是自定义倍率，显示输入框并赋值
+      if (rate === 'custom') {
+        custRateInput.style.display = 'inline-block';
+        if (customRate) custRateInput.value = customRate;
+      }
+      if (price !== '') priceInput.value = price;
+
+      bindSetRowEvents(row);
+      
+      // 添加完行后，立即触发一次总折扣计算
+      recalcWorkAmount(); 
+    }
+
+    function bindSetRowEvents(row) {
+      const wrap = document.getElementById('setRows');
+      const delBtn = row.querySelector('.del');
+      const nameInput = row.querySelector('.row-name');
+      const subtypeSelect = row.querySelector('.row-subtype');
+      const priceInput = row.querySelector('.row-price');
+      // 新增监听对象
+      const rateSelect = row.querySelector('.row-rate');
+      const custRateInput = row.querySelector('.row-rate-custom');
+
+      delBtn.onclick = () => {
+        const type = getCurrentType();
+        if (type === 'single') {
+          alert('单品模式下必须保留一个制品。');
+          return;
+        }
+        row.remove();
+        recalcWorkAmount(); // 删除行后重新计算总折扣
+      };
+
+      // 统一处理函数：改名、改类型、改倍率都会触发价格重算
+      function onSmartChange() {
+        // 控制自定义输入框的显示/隐藏
+        if (rateSelect.value === 'custom') {
+          custRateInput.style.display = 'inline-block';
+        } else {
+          custRateInput.style.display = 'none';
+        }
+        
+        autoFillRowPrice(row); // 重新计算单行价格
+        recalcWorkAmount();    // 重新计算总价
+      }
+
+      nameInput.onchange = onSmartChange;
+      nameInput.oninput = onSmartChange;
+      subtypeSelect.onchange = onSmartChange;
+      rateSelect.onchange = onSmartChange;
+      custRateInput.oninput = onSmartChange; // 自定义倍率输入时也实时计算
+
+      // 手动改价格也会触发总价计算
+      priceInput.oninput = () => recalcWorkAmount();
+
+      row.addEventListener('dragstart', () => row.classList.add('dragging'));
+      row.addEventListener('dragend', () => row.classList.remove('dragging'));
+
+      const wrapEl = document.getElementById('setRows');
+      wrapEl.ondragover = e => {
+        e.preventDefault();
+        const dragging = wrapEl.querySelector('.row-group.dragging');
+        if (!dragging) return;
+        const siblings = [...wrapEl.querySelectorAll('.row-group:not(.dragging)')];
+        let closest = { offset: Number.NEGATIVE_INFINITY, element: null };
+        siblings.forEach(el => {
+          const rect = el.getBoundingClientRect();
+          const offset = e.clientY - rect.top - rect.height / 2;
+          if (offset < 0 && offset > closest.offset) {
+            closest = { offset, element: el };
+          }
+        });
+        if (!closest.element) wrapEl.appendChild(dragging);
+        else wrapEl.insertBefore(dragging, closest.element);
+      };
+    }
+
+    function autoFillRowPrice(row) {
+      const nameVal = row.querySelector('.row-name').value.trim();
+      const subtypeSelect = row.querySelector('.row-subtype');
+      const priceInput = row.querySelector('.row-price');
+      
+      const rateSelect = row.querySelector('.row-rate');
+      const custRateInput = row.querySelector('.row-rate-custom');
+
+      const currentSubtype = subtypeSelect.value;
+
+      // 1. 查找基础价格 (查表)
+      let basePrice = 0;
+      let cfg = db.priceConfig.find(p => p.name === nameVal && p.subtype === currentSubtype);
+      
+      // 模糊匹配逻辑
+      if (!cfg) {
+        const anyMatch = db.priceConfig.find(p => p.name === nameVal);
+        if (anyMatch) {
+          cfg = anyMatch;
+          subtypeSelect.value = cfg.subtype; // 自动修正类型
+        }
+      }
+
+      if (cfg) {
+        basePrice = Number(cfg.price || 0);
+      }
+
+      // 2. 确定倍率
+      let multiplier = 1;
+      if (rateSelect.value === 'custom') {
+        multiplier = parseFloat(custRateInput.value || 0); // 使用自定义输入的数字
+      } else {
+        multiplier = parseFloat(rateSelect.value || 1);    // 使用下拉框的预设值
+      }
+
+      // 3. 计算并填入 (基础价 * 倍率)
+      // 只有当查到了基础价，或者倍率为0时，才自动修改价格
+      // 避免用户手动填了价格后，被错误的倍率计算覆盖为空
+      if (basePrice > 0 || multiplier === 0) {
+        const finalPrice = basePrice * multiplier;
+        priceInput.value = finalPrice.toFixed(2);
+      }
+    }
+
+    function recalcWorkAmountFromRaw() {
+      const rawVal = parseFloat(document.getElementById('workRaw').value || '0');
+      let discount = parseFloat(document.getElementById('workDiscount').value);
+      if (isNaN(discount)) discount = 1;
+      if (discount < 0) discount = 0;
+      const amt = rawVal * discount;
+      document.getElementById('workAmount').value = amt ? amt.toFixed(2) : '';
+    }
+
+    function recalcWorkAmount() {
+      // 1. 计算原价合计
+      let totalRaw = 0;
+      const rows = document.querySelectorAll('#setRows .row-group');
+      rows.forEach(row => {
+        const val = parseFloat(row.querySelector('.row-price').value || '0');
+        totalRaw += val;
+      });
+
+      if (totalRaw >= 0) {
+        document.getElementById('workRaw').value = totalRaw.toFixed(2);
+      }
+
+      // 2. 自动判断折扣 (Set 模式逻辑)
+      const type = getCurrentType(); // 获取当前是 单品 还是 Set
+      const discountInput = document.getElementById('workDiscount');
+      
+      if (type === 'set') {
+        const count = rows.length;
+        if (count >= 6) {
+          discountInput.value = '0.8'; // 6个及以上 8折
+        } else if (count >= 3) {
+          discountInput.value = '0.9'; // 3个及以上 9折
+        } else {
+          discountInput.value = '1';   // 其他情况不打折
+        }
+      } else {
+        // 单品模式默认不强制改折扣，或者重置为1，看你习惯
+        // 这里建议保持为1，除非用户自己改过，但为了逻辑统一，切回单品重置为1比较好
+        discountInput.value = '1';
+      }
+
+      // 3. 计算实收
+      recalcWorkAmountFromRaw();
+    }
+
+    // ========= 图片预览 =========
+    function handleImageFiles(files, buffer, renderFn, maxCount = 10) {
+      if (!files || !files.length) return;
+      const remain = maxCount - buffer.length;
+      const list = [...files].slice(0, Math.max(0, remain));
+      if (!list.length) return;
+      let loaded = 0;
+      list.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          buffer.push(e.target.result);
+          loaded++;
+          if (loaded === list.length) renderFn();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function renderWorkPreview() {
+      const grid = document.getElementById('workImgGrid');
+      grid.innerHTML = '';
+      workImgBuffer.forEach((src, idx) => {
+        const box = document.createElement('div');
+        box.className = 'img-box';
+        box.draggable = true;
+        box.innerHTML = `
+          <img src="${src}">
+          <span class="idx">${idx + 1}</span>
+          <button type="button" class="rm">×</button>
+        `;
+        box.querySelector('.rm').onclick = e => {
+          e.stopPropagation();
+          workImgBuffer.splice(idx, 1);
+          renderWorkPreview();
+        };
+        box.addEventListener('dragstart', () => box.classList.add('dragging'));
+        box.addEventListener('dragend', () => box.classList.remove('dragging'));
+        grid.appendChild(box);
+      });
+
+      grid.ondragover = e => {
+        e.preventDefault();
+        const dragging = grid.querySelector('.img-box.dragging');
+        if (!dragging) return;
+        const boxes = [...grid.querySelectorAll('.img-box:not(.dragging)')];
+        let closest = { offset: Number.NEGATIVE_INFINITY, element: null };
+        boxes.forEach(el => {
+          const rect = el.getBoundingClientRect();
+          const offset = e.clientY - rect.top - rect.height / 2;
+          if (offset < 0 && offset > closest.offset) {
+            closest = { offset, element: el };
+          }
+        });
+        if (!closest.element) grid.appendChild(dragging);
+        else grid.insertBefore(dragging, closest.element);
+
+        const newOrder = [];
+        grid.querySelectorAll('.img-box img').forEach(img => newOrder.push(img.src));
+        workImgBuffer = newOrder;
+        grid.querySelectorAll('.idx').forEach((span, i) => span.textContent = i + 1);
+      };
+    }
+
+    function renderFeedbackPreview() {
+      const grid = document.getElementById('feedbackImgGrid');
+      grid.innerHTML = '';
+      feedbackImgBuffer.forEach((src, idx) => {
+        const box = document.createElement('div');
+        box.className = 'img-box';
+        box.innerHTML = `
+          <img src="${src}">
+          <span class="idx">${idx + 1}</span>
+          <button type="button" class="rm">×</button>
+        `;
+        box.querySelector('.rm').onclick = () => {
+          feedbackImgBuffer.splice(idx, 1);
+          renderFeedbackPreview();
+        };
+        grid.appendChild(box);
+      });
+    }
+
+    // ========= 自动命名 =========
+    function generateAutoName(attr, type, items, excludeId) {
+      const firstItemName = items[0] ? (items[0].name || '作品') : '作品';
+      const base = attr + ' ' + (type === 'set' ? 'set' : firstItemName);
+      const same = db.works.filter(w => {
+        if (w.id === excludeId) return false;
+        if (w.attr !== attr) return false;
+        if (w.type !== type) return false;
+        const wFirst = (w.items && w.items[0] && w.items[0].name) ? w.items[0].name : '作品';
+        return type === 'set' || wFirst === firstItemName;
+      });
+      const idx = same.length + 1;
+      return base + ' ' + idx;
+    }
+
+    // ========= 作品提交 =========
+    function handleWorkSubmit(e) {
+      e.preventDefault();
+      const attr = document.getElementById('workAttr').value.trim();
+      let client = document.getElementById('workClient').value.trim();
+      const usage = document.getElementById('workUsage').value;
+      const visibility = document.getElementById('workVisibility').value;
+      let raw = parseFloat(document.getElementById('workRaw').value || '0');
+      let discount = parseFloat(document.getElementById('workDiscount').value);
+      if (isNaN(discount)) discount = 1;
+      const amountInput = document.getElementById('workAmount').value;
+      let amount = amountInput ? parseFloat(amountInput) : raw * discount;
+      if (isNaN(amount)) amount = 0;
+
+      const dateStr = document.getElementById('workDate').value;
+      const dueStr = document.getElementById('workDue').value;
+      const remark = document.getElementById('workRemark').value.trim();
+      const type = getCurrentType();
+
+      if (!attr) {
+        alert('请填写属性，例如：今屿');
+        return;
+      }
+      if (dateStr && dueStr) {
+        alert('定稿日期 和 截止日期 只能填一个。');
+        return;
+      }
+      if (!dateStr && !dueStr) {
+        alert('定稿日期 和 截止日期 必须填一个。');
+        return;
+      }
+      if (!client) client = '未知';
+
+      const items = [];
+      document.querySelectorAll('#setRows .row-group').forEach(row => {
+        const name = row.querySelector('.row-name').value.trim() || '未命名制品';
+        const subtype = row.querySelector('.row-subtype').value;
+        const price = parseFloat(row.querySelector('.row-price').value || '0');
+        
+        // 新增保存字段
+        const rate = row.querySelector('.row-rate').value;
+        const customRate = row.querySelector('.row-rate-custom').value;
+
+        items.push({ name, subtype, price, rate, customRate });
+      });
+      
+      if (items.length === 0) {
+        alert('请至少添加一个制品。');
+        return;
+      }
+
+      // 若原价没填，从制品单价汇总
+      if (!raw) {
+        raw = items.reduce((sum, it) => sum + (it.price || 0), 0);
+      }
+
+      // === 请在 handleWorkSubmit 函数内部修改这部分 ===
+      
+      const images = [...workImgBuffer];
+      const feedback = feedbackImgBuffer.map(src => ({ src, category: 'product' }));
+      
+      // 新增：获取是否勾选了“最后一张为总览图”
+      const hasOverview = document.getElementById('chkOverview').checked;
+
+      const autoName = generateAutoName(attr, type, items, editingWorkId);
+      const now = getBeijingNow().toISOString();
+
+      // 在下方的 db.works.push 或 db.works[idx] = ... 中
+      // 务必把 hasOverview: hasOverview 加进去
+      
+      if (editingWorkId != null) {
+        const idx = db.works.findIndex(w => w.id === editingWorkId);
+        if (idx !== -1) {
+          const old = db.works[idx];
+          db.works[idx] = {
+            ...old,
+            attr,
+            client,
+            usage,
+            visibility,
+            raw,
+            discount,
+            amount,
+            date: dateStr || null,
+            due: dueStr || null,
+            remark,
+            type,
+            items,
+            images,
+            feedback,
+            autoName,
+            hasOverview // <--- 新增
+          };
+        }
+      } else {
+        const id = nextId(db.works);
+        db.works.push({
+          id,
+          attr,
+          client,
+          usage,
+          visibility,
+          raw,
+          discount,
+          amount,
+          date: dateStr || null,
+          due: dueStr || null,
+          remark,
+          type,
+          items,
+          images,
+          feedback,
+          autoName,
+          pinned: false,
+          hasOverview, // <--- 新增
+          createdAt: now
+        });
+      }
+
+      editingWorkId = null;
+      detailCurrentId = null;
+      document.getElementById('editBar').classList.remove('show');
+      document.getElementById('btnSubmitWork').textContent = '提交作品收入';
+
+      saveData().then(() => {
+        renderAll();
+        alert('✅ 作品已保存');
+        clearWorkForm();
+      });
+    }
+
+    // ========= 素材提交 =========
+    function handleMatSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('matName').value.trim();
+      const merchant = document.getElementById('matMerchant').value.trim();
+      const price = parseFloat(document.getElementById('matPrice').value || '0');
+      let dateStr = document.getElementById('matDate').value;
+      const remark = document.getElementById('matRemark').value.trim();
+
+      if (!name || !price) {
+        alert('请填写素材名称和金额。');
+        return;
+      }
+      if (!dateStr) {
+        dateStr = formatDate(getBeijingTodayDate());
+      }
+
+      const id = nextId(db.materials);
+      db.materials.push({
+        id,
+        name,
+        merchant,
+        price,
+        date: dateStr,
+        remark,
+        createdAt: getBeijingNow().toISOString()
+      });
+
+      document.getElementById('matForm').reset();
+      document.getElementById('matDate').value = formatDate(getBeijingTodayDate());
+
+      saveData().then(() => {
+        renderAll();
+        alert('✅ 素材支出已记录');
+      });
+    }
+
+    // ========= 统计 =========
+    function renderStats() {
+      const finished = db.works.filter(w => !!w.date); // 只统计已定稿
+      let totalIncome = 0;
+      finished.forEach(w => totalIncome += Number(w.amount || 0));
+      let totalExpense = 0;
+      db.materials.forEach(m => totalExpense += Number(m.price || 0));
+      const net = totalIncome - totalExpense;
+
+      document.getElementById('statIncome').textContent = money(totalIncome);
+      document.getElementById('statExpense').textContent = '-' + money(totalExpense).slice(1);
+      document.getElementById('statCount').textContent = finished.length + ' / ' + db.materials.length;
+      document.getElementById('matTotal').textContent = money(totalExpense);
+      document.getElementById('statNet').textContent = '净收入：' + money(net);
+    }
+
+    // ========= 客妹们 =========
+    function renderClients() {
+      const works = db.works;
+      const b1List = works.filter(w => w.client === 'B1ux');
+      const others = works.filter(w => w.client !== 'B1ux');
+
+      const nonClientList = document.getElementById('nonClientList');
+      nonClientList.innerHTML = '';
+      if (!b1List.length) {
+        nonClientList.innerHTML = '<div style="font-size:12px;color:var(--text-sub);">暂无 B1ux 自己的记录。</div>';
+      } else {
+        const sortedB1 = [...b1List].sort((a, b) => {
+          const da = a.date || a.due || a.createdAt;
+          const dbs = b.date || b.due || b.createdAt;
+          return da.localeCompare(dbs);
+        });
+        sortedB1.forEach(w => {
+          const div = document.createElement('div');
+          div.className = 'non-client-item';
+          const d = (w.date || w.due || '').slice(5);
+          div.textContent = (d || '??-??') + ' · ' + (w.autoName || w.attr);
+          div.onclick = () => openDetail(w.id);
+          nonClientList.appendChild(div);
+        });
+      }
+
+      // 统计贡献榜：排单 + 已完成都算次数；金额只算已完成
+      const map = {};
+      others.forEach(w => {
+        const name = w.client || '未知';
+        if (!map[name]) {
+          map[name] = {
+            name,
+            count: 0,
+            total: 0,
+            earliest: w.date || w.due || w.createdAt,
+            works: []
+          };
+        }
+        map[name].count++;
+        if (w.date && w.amount) {
+          map[name].total += Number(w.amount);
+        }
+        const thisTime = w.date || w.due || w.createdAt;
+        if (thisTime < map[name].earliest) {
+          map[name].earliest = thisTime;
+        }
+        map[name].works.push(w);
+      });
+
+      let all = Object.values(map);
+      const sortMode = document.getElementById('selClientSort').value;
+
+      let unknownEntry = all.find(x => x.name === '未知');
+      let known = all.filter(x => x.name !== '未知');
+
+      if (sortMode === 'amountDesc') {
+        known.sort((a, b) => b.total - a.total);
+      } else if (sortMode === 'timeAsc') {
+        known.sort((a, b) => a.earliest.localeCompare(b.earliest));
+      }
+
+      const tbody = document.getElementById('clientTableBody');
+      tbody.innerHTML = '';
+
+      if (!known.length && !unknownEntry) {
+        tbody.innerHTML = '<tr><td colspan="5" style="font-size:12px;color:var(--text-sub);">还没有客妹约稿记录。</td></tr>';
+        return;
+      }
+
+      // 已知客妹：有名次
+      known.forEach((c, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${idx + 1}</td>
+          <td>${c.name}</td>
+          <td>${c.count}</td>
+          <td>${money(c.total)}</td>
+          <td><button type="button" class="btn-outline btn-sm" data-client="${c.name}" style="background:#54a3ff;color:#fff;border:none;">查看</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // 未知：永远在最下方、无名次，和倒数一名隔一行
+      if (unknownEntry) {
+        if (known.length) {
+          const spacer = document.createElement('tr');
+          spacer.innerHTML = '<td colspan="5" style="border-bottom:none;height:4px;"></td>';
+          tbody.appendChild(spacer);
+        }
+        const trU = document.createElement('tr');
+        trU.innerHTML = `
+          <td></td>
+          <td>未知</td>
+          <td>${unknownEntry.count}</td>
+          <td>${money(unknownEntry.total)}</td>
+          <td><button type="button" class="btn-outline btn-sm" data-client="未知" style="background:#54a3ff;color:#fff;border:none;">查看</button></td>
+        `;
+        tbody.appendChild(trU);
+      }
+
+      tbody.querySelectorAll('button[data-client]').forEach(btn => {
+        btn.onclick = () => openClientWorks(btn.getAttribute('data-client'));
+      });
+    }
+
+    function openClientWorks(name) {
+      const list = db.works.filter(w => (w.client || '未知') === name);
+      const title = document.getElementById('clientModalTitle');
+      title.textContent = name + ' 的作品记录';
+      const container = document.getElementById('clientWorksList');
+      container.innerHTML = '';
+      if (!list.length) {
+        container.innerHTML = '<div style="font-size:12px;color:var(--text-sub);">暂无记录。</div>';
+      } else {
+        const sorted = [...list].sort((a, b) => {
+          const da = a.date || a.due || a.createdAt;
+          const dbs = b.date || b.due || b.createdAt;
+          return da.localeCompare(dbs);
+        });
+        sorted.forEach(w => {
+          const div = document.createElement('div');
+          div.style.padding = '4px 0';
+          const dateLabel = (w.date || w.due || '').slice(5) || '??-??';
+          const status = w.date ? '已定稿' : '排单';
+          div.innerHTML = `${dateLabel} · ${w.autoName || w.attr} <span style="font-size:11px;color:var(--text-sub);">(${status})</span>`;
+          div.style.cursor = 'pointer';
+          div.onclick = () => openDetail(w.id);
+          container.appendChild(div);
+        });
+      }
+      openModal('clientModal');
+    }
+
+    // ========= 详细统计 =========
+    function renderAnalysis() {
+      const list = db.works.filter(w => !!w.date);
+      const counts = {};
+      list.forEach(w => {
+        (w.items || []).forEach(it => {
+          const name = (it.name || '未命名制品').trim();
+          if (!name) return;
+          counts[name] = (counts[name] || 0) + 1;
+        });
+      });
+
+      const container = document.getElementById('rankList');
+      const empty = document.getElementById('rankEmpty');
+      container.innerHTML = '';
+
+      const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      if (!entries.length) {
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      const max = entries[0][1];
+      entries.forEach(([name, cnt], idx) => {
+        const item = document.createElement('div');
+        item.className = 'rank-item';
+        const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '';
+        const width = Math.max(5, (cnt / max) * 100);
+        item.innerHTML = `
+          <div class="rank-top">
+            <div class="rank-name">
+              <span class="rank-medal">${medal}</span>
+              <span>${name}</span>
+            </div>
+            <div>${cnt}</div>
+          </div>
+          <div class="rank-bar-bg">
+            <div class="rank-bar" style="width:${width}%;"></div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // ========= 作品集 & 制品相册 =========
+    // === 请替换 function renderGallery() ===
+
+    function renderGallery() {
+      const finished = db.works.filter(w => !!w.date);
+      const grid = document.getElementById('workGrid');
+      const empty = document.getElementById('workEmpty');
+      const sortMode = document.getElementById('selSortWorks').value;
+
+      grid.innerHTML = '';
+
+      if (!finished.length) {
+        empty.style.display = 'block';
+      } else {
+        empty.style.display = 'none';
+        
+        let arr = [...finished];
+        // 排序逻辑
+        if (sortMode === 'timeDesc') {
+          arr.sort((a, b) => (b.date || b.createdAt).localeCompare(a.date || a.createdAt));
+        } else if (sortMode === 'timeAsc') {
+          arr.sort((a, b) => (a.date || a.createdAt).localeCompare(b.date || b.createdAt));
+        } else {
+          // 自定义排序
+          arr.sort((a, b) => {
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
+            return 0; 
+          });
+        }
+
+        arr.forEach(w => {
+          const card = document.createElement('div');
+          card.className = 'card-item';
+          
+          // === 拖拽功能 ===
+          if (sortMode === 'custom') {
+            card.draggable = true;
+            card.dataset.id = w.id;
+            card.addEventListener('dragstart', (e) => {
+              card.classList.add('dragging');
+              e.dataTransfer.effectAllowed = 'move';
+              e.dataTransfer.setData('text/plain', w.id);
+            });
+            card.addEventListener('dragend', () => card.classList.remove('dragging'));
+            card.addEventListener('dragover', (e) => {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = 'move';
+            });
+            card.addEventListener('drop', (e) => {
+              e.preventDefault();
+              const draggedId = parseInt(e.dataTransfer.getData('text/plain'));
+              const targetId = w.id;
+              if (draggedId === targetId) return;
+              const fromIndex = db.works.findIndex(x => x.id === draggedId);
+              const toIndex = db.works.findIndex(x => x.id === targetId);
+              if (fromIndex > -1 && toIndex > -1) {
+                const [movedItem] = db.works.splice(fromIndex, 1);
+                db.works.splice(toIndex, 0, movedItem);
+                saveData().then(renderGallery);
+              }
+            });
+          }
+
+          card.onclick = () => openDetail(w.id);
+
+          // === 1. 图片部分 (核心拼图逻辑) ===
+          const imgDiv = document.createElement('div');
+          imgDiv.className = 'card-img'; // 这里会被 CSS 强制设为正方形
+
+          const imgs = w.images || [];
+          const count = imgs.length;
+
+          // 条件：Set + 没勾总览 + 至少2张图
+          if (w.type === 'set' && !w.hasOverview && count >= 2) {
+            
+            // 2-4张 -> 4宫格; 5张+ -> 9宫格
+            const gridSize = count >= 5 ? 9 : 4;
+            
+            const gridDiv = document.createElement('div');
+            gridDiv.className = `cover-grid g-${gridSize}`; 
+            
+            for (let i = 0; i < gridSize; i++) {
+              const img = document.createElement('img');
+              // 循环取图
+              img.src = imgs[i % count]; 
+              // 注意：CSS 会自动处理 object-fit: cover 把它变成正方形
+              gridDiv.appendChild(img);
+            }
+            imgDiv.appendChild(gridDiv);
+
+          } else {
+            // 普通逻辑：显示一张大图
+            if (count > 0) {
+              const img = document.createElement('img');
+              // 有总览显示最后一张，否则第一张
+              img.src = w.hasOverview ? imgs[count - 1] : imgs[0];
+              imgDiv.appendChild(img);
+            } else {
+              imgDiv.innerHTML = '<div class="card-img-empty">暂无预览</div>';
+            }
+          }
+          card.appendChild(imgDiv);
+
+          // === 2. 文字与按钮部分 ===
+          const body = document.createElement('div');
+          body.className = 'card-body';
+          
+          const headerRow = document.createElement('div');
+          headerRow.className = 'card-header-row';
+
+          const title = document.createElement('div');
+          title.className = 'card-title';
+          title.textContent = w.autoName || w.attr;
+          headerRow.appendChild(title);
+
+          const pinBtn = document.createElement('button');
+          pinBtn.className = 'pin-btn' + (w.pinned ? ' pinned' : '');
+          pinBtn.innerHTML = w.pinned ? '★' : '☆';
+          pinBtn.onclick = (e) => {
+            e.stopPropagation();
+            w.pinned = !w.pinned;
+            saveData().then(renderGallery);
+          };
+          headerRow.appendChild(pinBtn);
+
+          body.appendChild(headerRow);
+
+          const sub = document.createElement('div');
+          sub.className = 'card-sub';
+          sub.textContent = (w.client || '未知') + ' · ' + (w.type === 'set' ? 'Set' : '单品');
+          body.appendChild(sub);
+
+          card.appendChild(body);
+          grid.appendChild(card);
+        });
+      }
+
+      renderAlbums();
+    }
+    
+    function renderAlbums() {
+      const finished = db.works.filter(w => !!w.date);
+      const map = {};
+
+      // 1. 按时间倒序
+      const sortedWorks = [...finished].sort((a, b) => 
+        (b.date || b.createdAt).localeCompare(a.date || a.createdAt)
+      );
+
+      sortedWorks.forEach(w => {
+        const items = w.items || [];
+        const rawImages = w.images || [];
+        
+        // 构建图片池：如果有总览图，去掉最后一张
+        let pool = [...rawImages];
+        if (w.hasOverview && pool.length > 0) {
+          pool.pop(); 
+        }
+        
+        const hasImages = pool.length > 0;
+        
+        items.forEach((it, itemIndex) => {
+          const name = (it.name || '未命名制品').trim();
+          if (!name) return;
+          
+          if (!map[name]) {
+            map[name] = { name, count: 0, cover: null };
+          }
+          map[name].count++;
+
+          // 2. 设置相册大封面
+          if (!map[name].cover && hasImages) {
+            let targetIndex = itemIndex;
+            if (targetIndex >= pool.length) targetIndex = pool.length - 1;
+            
+            if (targetIndex >= 0 && pool[targetIndex]) {
+               map[name].cover = pool[targetIndex];
+            }
+          }
+        });
+      });
+
+      const albumsGrid = document.getElementById('albumGrid');
+      const empty = document.getElementById('albumEmpty');
+      albumsGrid.innerHTML = '';
+
+      const entries = Object.values(map).sort((a, b) => b.count - a.count);
+      if (!entries.length) {
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      entries.forEach(al => {
+        const card = document.createElement('div');
+        card.className = 'card-item';
+        
+        card.onclick = () => {
+          const worksInAlbum = db.works.filter(w => 
+            !!w.date && (w.items || []).some(it => it.name === al.name)
+          );
+          // 【改动点】这里把 al.name (制品名) 单独传进去，比如 "手幅"
+          openWorksModal(al.name, worksInAlbum); 
+        };
+
+        const imgDiv = document.createElement('div');
+        imgDiv.className = 'card-img'; 
+        
+        if (al.cover) {
+          const img = document.createElement('img');
+          img.src = al.cover;
+          imgDiv.appendChild(img);
+        } else {
+          imgDiv.innerHTML = '<div class="card-img-empty">暂无预览</div>';
+        }
+        card.appendChild(imgDiv);
+
+        const body = document.createElement('div');
+        body.className = 'card-body';
+        body.innerHTML = `
+          <div class="card-title">${al.name}</div>
+          <div class="card-sub">共 ${al.count} 份成品</div>
+        `;
+        card.appendChild(body);
+
+        albumsGrid.appendChild(card);
+      });
+    }
+
+    function openWorksModal(filterName, worksList) {
+      // filterName 就是你点的相册名，比如 "Logo" 或 "手幅"
+      const title = document.getElementById('clientModalTitle');
+      title.textContent = filterName + ' 合集'; // 标题
+      
+      const container = document.getElementById('clientWorksList');
+      container.innerHTML = ''; 
+      
+      if (!worksList.length) {
+        container.innerHTML = '<div style="font-size:12px;color:var(--text-sub);">暂无作品。</div>';
+      } else {
+        const grid = document.createElement('div');
+        grid.style.display = 'grid';
+        grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(120px, 1fr))';
+        grid.style.gap = '10px';
+        
+        const sorted = [...worksList].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+        
+        sorted.forEach(w => {
+          const item = document.createElement('div');
+          item.className = 'card-item';
+          item.onclick = () => openDetail(w.id);
+          
+          const imgDiv = document.createElement('div');
+          imgDiv.className = 'card-img';
+          
+          // === 核心修复逻辑开始 ===
+          let imgSrc = null;
+          
+          // 1. 准备图片池 (排除总览图)
+          let pool = [...(w.images || [])];
+          if (w.hasOverview && pool.length > 0) pool.pop();
+          
+          // 2. 找到 "手幅" 在这个作品的制品列表里排第几？
+          const items = w.items || [];
+          let targetIndex = -1;
+          
+          // 遍历查找名字匹配的制品
+          for(let i=0; i<items.length; i++) {
+             if(items[i].name === filterName) {
+                 targetIndex = i;
+                 break;
+             }
+          }
+
+          // 3. 如果找到了位置，且图片池里有对应的图
+          if (targetIndex !== -1 && targetIndex < pool.length) {
+              imgSrc = pool[targetIndex];
+          } 
+          // 4. 兜底：如果没对上 (比如忘了传第2张图)，还是显示个东西比较好，就显示第一张
+          else if (pool.length > 0) {
+              imgSrc = pool[0];
+          } 
+          // 5. 如果连单品图都没有，最后试一下总览图
+          else if (w.images && w.images.length > 0) {
+              imgSrc = w.images[0];
+          }
+
+          if (imgSrc) {
+             const img = document.createElement('img');
+             img.src = imgSrc;
+             imgDiv.appendChild(img);
+          } else {
+             imgDiv.innerHTML = '<div class="card-img-empty">无图</div>';
+          }
+          // === 核心修复逻辑结束 ===
+
+          item.appendChild(imgDiv);
+          
+          const body = document.createElement('div');
+          body.className = 'card-body';
+          body.innerHTML = `
+            <div class="card-title" style="font-size:12px;">${w.autoName || w.attr}</div>
+            <div class="card-sub" style="font-size:11px;">${w.date}</div>
+          `;
+          item.appendChild(body);
+          
+          grid.appendChild(item);
+        });
+        
+        container.appendChild(grid);
+      }
+      
+      openModal('clientModal');
+    }
+
+    // ========= 素材库 =========
+    function renderMaterials() {
+      const grid = document.getElementById('matGrid');
+      const empty = document.getElementById('matEmpty');
+      grid.innerHTML = '';
+
+      let arr = [...db.materials];
+      if (!arr.length) {
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      const mode = document.getElementById('selSortMat').value;
+      if (mode === 'timeDesc') {
+        arr.sort((a, b) => (b.date || b.createdAt).localeCompare(a.date || a.createdAt));
+      } else if (mode === 'timeAsc') {
+        arr.sort((a, b) => (a.date || a.createdAt).localeCompare(b.date || b.createdAt));
+      } else if (mode === 'priceDesc') {
+        arr.sort((a, b) => (b.price || 0) - (a.price || 0));
+      }
+
+      arr.forEach(m => {
+        const card = document.createElement('div');
+        card.className = 'card-item';
+        card.style.cursor = 'default';
+
+        const imgDiv = document.createElement('div');
+        imgDiv.className = 'card-img';
+        imgDiv.textContent = '素材';
+        card.appendChild(imgDiv);
+
+        const body = document.createElement('div');
+        body.className = 'card-body';
+        body.innerHTML = `
+          <div class="card-title">${m.name}</div>
+          <div class="card-sub">${m.merchant || '未知商家'}</div>
+          <div style="font-size:12px;margin-top:2px;">${m.date || ''} · ${money(m.price)}</div>
+        `;
+        card.appendChild(body);
+
+        grid.appendChild(card);
+      });
+    }
+
+    // ========= 返图墙 =========
+    function renderFeedbackWall() {
+      const officialGrid = document.getElementById('fbOfficialGrid');
+      const productGrid = document.getElementById('fbProductGrid');
+      const offEmpty = document.getElementById('fbOfficialEmpty');
+      const prodEmpty = document.getElementById('fbProductEmpty');
+
+      officialGrid.innerHTML = '';
+      productGrid.innerHTML = '';
+
+      const official = [];
+      const product = [];
+
+      db.works.forEach(w => {
+        (w.feedback || []).forEach((f, idx) => {
+          const item = { workId: w.id, idx, src: f.src, category: f.category || 'product' };
+          if (item.category === 'official') official.push(item);
+          else product.push(item);
+        });
+      });
+
+      if (!official.length) offEmpty.style.display = 'block';
+      else offEmpty.style.display = 'none';
+      if (!product.length) prodEmpty.style.display = 'block';
+      else prodEmpty.style.display = 'none';
+
+      function makeCard(item, target) {
+        const card = document.createElement('div');
+        card.className = 'card-item';
+        card.onclick = () => openDetail(item.workId);
+        const imgDiv = document.createElement('div');
+        imgDiv.className = 'card-img';
+        const img = document.createElement('img');
+        img.src = item.src;
+        imgDiv.appendChild(img);
+        card.appendChild(imgDiv);
+        const body = document.createElement('div');
+        body.className = 'card-body';
+        body.innerHTML = `<div class="card-title">作品 #${item.workId}</div>`;
+        card.appendChild(body);
+        target.appendChild(card);
+      }
+
+      official.forEach(it => makeCard(it, officialGrid));
+      product.forEach(it => makeCard(it, productGrid));
+    }
+
+    // ========= 日历 =========
+    function renderCalendar() {
+      ensureCurrentMonth();
+      setMonthInput();
+
+      const head = document.getElementById('calendarHead');
+      const body = document.getElementById('calendarBody');
+      const todoList = document.getElementById('todoList');
+      head.innerHTML = '';
+      body.innerHTML = '';
+      todoList.innerHTML = '';
+
+      const weekNames = ['日','一','二','三','四','五','六'];
+      weekNames.forEach(d => {
+        const div = document.createElement('div');
+        div.className = 'cal-cell-head';
+        div.textContent = d;
+        head.appendChild(div);
+      });
+
+      const year = currentMonthDate.getFullYear();
+      const month = currentMonthDate.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const startDow = firstDay.getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const prevMonthDays = new Date(year, month, 0).getDate();
+      const totalCells = 42;
+      const today = getBeijingTodayDate();
+      const works = db.works;
+
+      for (let i = 0; i < totalCells; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'cal-cell';
+
+        const dayNumEl = document.createElement('div');
+        dayNumEl.className = 'cal-day-num';
+
+        let day = i - startDow + 1;
+        let cellDate;
+        if (i < startDow) {
+          day = prevMonthDays - (startDow - i) + 1;
+          cellDate = new Date(year, month - 1, day);
+          cell.classList.add('other-month');
+        } else if (day > daysInMonth) {
+          day = day - daysInMonth;
+          cellDate = new Date(year, month + 1, day);
+          cell.classList.add('other-month');
+        } else {
+          cellDate = new Date(year, month, day);
+        }
+        dayNumEl.textContent = day;
+        cell.appendChild(dayNumEl);
+
+        if (
+          cellDate.getFullYear() === today.getFullYear() &&
+          cellDate.getMonth() === today.getMonth() &&
+          cellDate.getDate() === today.getDate()
+        ) {
+          cell.classList.add('today');
+        }
+
+        const cellStr = formatDate(cellDate);
+        const dayWorks = works.filter(w => w.date === cellStr || w.due === cellStr);
+        dayWorks.forEach(w => {
+          const isDone = !!w.date && w.date === cellStr;
+          const isPending = !!w.due && w.due === cellStr && !w.date;
+          const tag = document.createElement('div');
+          tag.className = 'cal-event ' + (isDone ? 'done' : 'pending');
+          const label = w.autoName || w.attr || '';
+          tag.textContent = label;
+          tag.title = w.client || '';
+          tag.onclick = e => {
+            e.stopPropagation();
+            openDetail(w.id);
+          };
+          // 对于同时有定稿 / 截止（旧数据），只显示一次
+          if (isDone || isPending) {
+            cell.appendChild(tag);
+          }
+        });
+
+        body.appendChild(cell);
+      }
+
+      // 待办清单：本月内只有截止日期、未定稿
+      const currYear = currentMonthDate.getFullYear();
+      const currMonth = currentMonthDate.getMonth() + 1;
+      const todos = works.filter(w => !w.date && !!w.due);
+      const monthTodos = todos.filter(w => {
+        const [y, m] = w.due.split('-').map(Number);
+        return y === currYear && m === currMonth;
+      });
+
+      if (!monthTodos.length) {
+        todoList.innerHTML = '<div style="font-size:12px;color:var(--text-sub);">本月暂无待办排单。</div>';
+      } else {
+        const sorted = [...monthTodos].sort((a, b) => (a.due || '').localeCompare(b.due || ''));
+        sorted.forEach(w => {
+          const div = document.createElement('div');
+          div.className = 'todo-item';
+          div.innerHTML = `
+            <span>${w.due.slice(5)} · ${w.autoName || w.attr}</span>
+            <span style="color:var(--danger);font-size:11px;">未定稿</span>
+          `;
+          div.onclick = () => openDetail(w.id);
+          todoList.appendChild(div);
+        });
+      }
+    }
+
+    function changeMonth(delta) {
+      ensureCurrentMonth();
+      const y = currentMonthDate.getFullYear();
+      const m = currentMonthDate.getMonth();
+      currentMonthDate = new Date(y, m + delta, 1);
+      renderCalendar();
+    }
+
+    // ========= 详情弹窗 =========
+    function openDetail(id) {
+      const w = db.works.find(x => x.id === id);
+      if (!w) return;
+      detailCurrentId = id;
+
+      document.getElementById('detailTitle').textContent = (w.autoName || w.attr) + ' · ' + (w.client || '未知');
+
+      const tags = document.getElementById('detailTags');
+      tags.innerHTML = '';
+      const tagType = document.createElement('span');
+      tagType.className = 'badge';
+      tagType.textContent = w.type === 'set' ? 'Set 组合' : '单品';
+      tags.appendChild(tagType);
+
+      const tagUsage = document.createElement('span');
+      tagUsage.className = 'badge';
+      tagUsage.textContent = '使用权：' + (w.usage || '自用');
+      tags.appendChild(tagUsage);
+
+      const tagVis = document.createElement('span');
+      tagVis.className = 'badge';
+      tagVis.textContent = '公开性：' + (w.visibility || '公开');
+      tags.appendChild(tagVis);
+
+      const imgsWrap = document.getElementById('detailImages');
+      imgsWrap.innerHTML = '';
+      if (w.images && w.images.length) {
+        w.images.forEach(src => {
+          const img = document.createElement('img');
+          img.src = src;
+          img.style.cursor = 'pointer';
+          img.onclick = () => window.open(src, '_blank');
+          imgsWrap.appendChild(img);
+        });
+      } else {
+        imgsWrap.innerHTML = '<div style="font-size:12px;color:var(--text-sub);">暂无作品图。</div>';
+      }
+
+      const fbWrap = document.getElementById('detailFeedbackImgs');
+      const fbEmpty = document.getElementById('detailFeedbackEmpty');
+      fbWrap.innerHTML = '';
+      const fbList = w.feedback || [];
+      if (!fbList.length) {
+        fbEmpty.style.display = 'block';
+      } else {
+        fbEmpty.style.display = 'none';
+        fbList.forEach(f => {
+          const img = document.createElement('img');
+          img.src = f.src;
+          img.style.cursor = 'pointer';
+          img.onclick = () => window.open(f.src, '_blank');
+          fbWrap.appendChild(img);
+        });
+      }
+
+      const detailClient = document.getElementById('detailClient');
+      detailClient.innerHTML = `<div style="margin-bottom:4px;">客户：<strong>${w.client || '未知'}</strong></div>`;
+
+      const detailDates = document.getElementById('detailDates');
+      let dateHtml = '';
+      if (w.date && !w.due) {
+        dateHtml = `定稿日期：${w.date}（已完成）`;
+      } else if (!w.date && w.due) {
+        dateHtml = `截止日期：${w.due}（排单中）`;
+      } else if (w.date && w.due) {
+        dateHtml = `定稿：${w.date} · 截止：${w.due}`;
+      }
+      detailDates.innerHTML = `<div style="margin-bottom:4px;">${dateHtml || '日期信息缺失'}</div>`;
+
+      const detailMoney = document.getElementById('detailMoney');
+      let moneyHtml = `原价合计：${money(w.raw || 0)}<br>折扣：${w.discount || 0}（0=无偿）<br>实收金额：${money(w.amount || 0)}`;
+      if (!w.date) {
+        moneyHtml += '<br><span style="font-size:11px;color:var(--text-sub);">当前为排单，统计中不计入收入。</span>';
+      }
+      detailMoney.innerHTML = `<div style="margin-bottom:4px;">${moneyHtml}</div>`;
+
+      const detailItems = document.getElementById('detailItems');
+      const items = w.items || [];
+      if (!items.length) {
+        detailItems.innerHTML = '<div style="margin-bottom:4px;">制品：暂无明细。</div>';
+      } else {
+        const lines = items.map(it => `${it.name}（${it.subtype}，${money(it.price || 0)}）`);
+        detailItems.innerHTML = `<div style="margin-bottom:4px;">制品明细：<br>${lines.join('<br>')}</div>`;
+      }
+
+      const detailRemark = document.getElementById('detailRemark');
+      if (w.remark) {
+        detailRemark.style.display = 'block';
+        detailRemark.textContent = '备注：' + w.remark;
+      } else {
+        detailRemark.style.display = 'none';
+      }
+
+      openModal('detailModal');
+    }
+
+    function startEditFromDetail() {
+      if (detailCurrentId == null) return;
+      const w = db.works.find(x => x.id === detailCurrentId);
+      if (!w) return;
+      editingWorkId = w.id;
+
+      // 切到 Tab1
+      switchTab('upload');
+
+      document.getElementById('workAttr').value = w.attr || '';
+      document.getElementById('workClient').value = w.client || '';
+      document.getElementById('workUsage').value = w.usage || '自用';
+      document.getElementById('workVisibility').value = w.visibility || '公开';
+      document.getElementById('workRaw').value = (w.raw != null) ? w.raw : '';
+      document.getElementById('workDiscount').value = (w.discount != null) ? w.discount : '1';
+      document.getElementById('workAmount').value = (w.amount != null) ? w.amount : '';
+      document.getElementById('workDate').value = w.date || '';
+      document.getElementById('workDue').value = w.due || '';
+      document.getElementById('workRemark').value = w.remark || '';
+      document.getElementById('chkOverview').checked = w.hasOverview || false;
+      // 模式
+      const typeBtns = document.querySelectorAll('#typeSwitch button');
+      typeBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.type === w.type);
+      });
+
+      // ... 前面的代码不变 ...
+
+      initSetRowsForType(w.type || 'single');
+      const wrap = document.getElementById('setRows');
+      wrap.innerHTML = '';
+      
+      (w.items || []).forEach(it => {
+        // 传入保存的 rate 和 customRate，兼容旧数据(没有则默认'1'和'')
+        addSetRow(it.name, it.subtype, it.price, it.rate || '1', it.customRate || '');
+      });
+      
+      // 保证至少一行
+      if (wrap.children.length === 0) {
+        addSetRow();
+      }
+      
+      // ... 后面的代码不变 ...
+      
+      // 更新状态（隐藏删除按钮等）
+      updateAllRowsDeleteState(w.type || 'single');
+
+      workImgBuffer = [...(w.images || [])];
+      feedbackImgBuffer = (w.feedback || []).map(f => f.src);
+      renderWorkPreview();
+      renderFeedbackPreview();
+
+      document.getElementById('editBar').classList.add('show');
+      document.getElementById('btnSubmitWork').textContent = '保存修改';
+
+      closeModal('detailModal');
+    }
+
+    function deleteFromDetail() {
+      if (detailCurrentId == null) return;
+      if (!confirm('确定要删除这条记录吗？此操作不可恢复。')) return;
+      const idx = db.works.findIndex(x => x.id === detailCurrentId);
+      if (idx !== -1) {
+        db.works.splice(idx, 1);
+      }
+      if (editingWorkId === detailCurrentId) {
+        editingWorkId = null;
+        document.getElementById('editBar').classList.remove('show');
+        document.getElementById('btnSubmitWork').textContent = '提交作品收入';
+        clearWorkForm();
+      }
+      detailCurrentId = null;
+      saveData().then(() => {
+        renderAll();
+        closeModal('detailModal');
+      });
+    }
+
+    // === 请替换 function renderPriceTable() ===
+
+    function renderPriceTable() {
+      const container = document.getElementById('priceTable');
+      container.innerHTML = '';
+
+      const header = document.createElement('div');
+      header.style.fontSize = '12px';
+      header.style.color = 'var(--text-sub)';
+      header.style.marginBottom = '4px';
+      header.textContent = '制品名 · 类型 · 默认单价（可添加多行）';
+      container.appendChild(header);
+
+      // 修改点：同样进行中文拼音排序，这样每次点开价格表都是有序的
+      const list = [...(db.priceConfig || [])].sort((a, b) => {
+        return (a.name || '').localeCompare(b.name || '', 'zh-CN');
+      });
+
+      if (!list.length) {
+        addPriceRow('', '默认单面', '');
+      } else {
+        list.forEach(p => addPriceRow(p.name, p.subtype, p.price));
+      }
+    }
+
+    function addPriceRow(name = '', subtype = '默认单面', price = '') {
+      const container = document.getElementById('priceTable');
+      const row = document.createElement('div');
+      row.className = 'price-row';
+      row.innerHTML = `
+        <input type="text" class="price-name" placeholder="制品名" style="flex:1 1 0;min-width:120px;">
+        <select class="price-subtype" style="width:120px;">
+          <option value="默认单面">默认单面</option>
+          <option value="默认双面">默认双面</option>
+          <option value="单面">单面</option>
+          <option value="双面">双面</option>
+          <option value="三面">三面</option>
+          <option value="四面">四面</option>
+          <option value="自定义">自定义</option>
+        </select>
+        <input type="number" step="0.01" class="price-price" placeholder="单价" style="width:110px;">
+        <button type="button" class="btn-outline btn-sm price-del" style="background:#fee2e2;color:#b91c1c;border:none;">删</button>
+      `;
+      container.appendChild(row);
+
+      const nameInput = row.querySelector('.price-name');
+      const subSelect = row.querySelector('.price-subtype');
+      const priceInput = row.querySelector('.price-price');
+      const delBtn = row.querySelector('.price-del');
+
+      if (name) nameInput.value = name;
+      if (subtype) subSelect.value = subtype;
+      if (price !== '') priceInput.value = price;
+
+      delBtn.onclick = () => {
+        row.remove();
+      };
+    }
+
+    function savePriceTableFromUI() {
+      const rows = document.querySelectorAll('#priceTable .price-row');
+      const cfg = [];
+      rows.forEach(row => {
+        const name = row.querySelector('.price-name').value.trim();
+        const subtype = row.querySelector('.price-subtype').value;
+        const price = parseFloat(row.querySelector('.price-price').value || '0');
+        if (!name) return;
+        cfg.push({ name, subtype, price });
+      });
+      db.priceConfig = cfg;
+      updateTypeDatalist();
+      saveData().then(() => {
+        alert('✅ 价格表已更新');
+        closeModal('priceModal');
+      });
+    }
+
+    // === 请替换 function updateTypeDatalist() ===
+
+    function updateTypeDatalist() {
+      const dl = document.getElementById('typeList');
+      dl.innerHTML = '';
+      const names = new Set();
+
+      // 修改点：使用 localeCompare('zh-CN') 进行中文拼音排序
+      // [...(...)] 是为了复制一份数组，防止直接修改原数据顺序
+      const sortedList = [...(db.priceConfig || [])].sort((a, b) => {
+        return (a.name || '').localeCompare(b.name || '', 'zh-CN');
+      });
+
+      sortedList.forEach(p => {
+        if (p.name && !names.has(p.name)) {
+          names.add(p.name);
+          const opt = document.createElement('option');
+          opt.value = p.name;
+          dl.appendChild(opt);
+        }
+      });
+    }
+
+    // ========= 备份导出 / 导入 =========
+    function exportBackup() {
+      const dataStr = JSON.stringify(db);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const now = getBeijingNow();
+      const pad = n => (n < 10 ? '0' + n : '' + n);
+      const name = `B1ux-backup-${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}.json`;
+      a.href = url;
+      a.download = name;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importBackup(file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const obj = JSON.parse(e.target.result);
+          if (!obj || typeof obj !== 'object') throw new Error('格式错误');
+          db.works = obj.works || [];
+          db.materials = obj.materials || [];
+          db.priceConfig = obj.priceConfig || [];
+          saveData().then(() => {
+            updateTypeDatalist();
+            renderAll();
+            alert('✅ 导入成功');
+          });
+        } catch (err) {
+          alert('导入失败：文件格式不正确');
+        }
+      };
+      reader.readAsText(file, 'utf-8');
+    }
+
+    // ========= Tabs & Modal =========
+    function switchTab(name) {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-tab') === name);
+      });
+      document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.toggle('active', panel.id === 'tab-' + name);
+      });
+
+      if (name === 'calendar') renderCalendar();
+      if (name === 'gallery') renderGallery();
+      if (name === 'feedback') renderFeedbackWall();
+      if (name === 'materials') renderMaterials();
+      if (name === 'clients') renderClients();
+      if (name === 'analysis') renderAnalysis();
+    }
+
+    function openModal(id) {
+      const m = document.getElementById(id);
+      if (m) m.classList.add('show');
+    }
+
+    function closeModal(id) {
+      const m = document.getElementById(id);
+      if (m) m.classList.remove('show');
+    }
+
+    // ========= 渲染入口 =========
+    function renderAll() {
+      renderStats();
+      renderCalendar();
+      renderGallery();
+      renderMaterials();
+      renderClients();
+      renderAnalysis();
+      renderFeedbackWall();
+      updateClientDatalist();
+    }
+
+    function updateClientDatalist() {
+      const dl = document.getElementById('clientList');
+      dl.innerHTML = '';
+      const names = new Set();
+      db.works.forEach(w => {
+        const c = (w.client || '').trim();
+        if (!c || c === '未知') return;
+        if (!names.has(c)) {
+          names.add(c);
+          const opt = document.createElement('option');
+          opt.value = c;
+          dl.appendChild(opt);
+        }
+      });
+      // 强制保留 B1ux
+      const optB = document.createElement('option');
+      optB.value = 'B1ux';
+      dl.appendChild(optB);
+    }
+
+    // ========= 初始化 =========
+    document.addEventListener('DOMContentLoaded', () => {
+      openDB()
+        .then(loadData)
+        .then(() => {
+          // 默认日期
+          const todayStr = formatDate(getBeijingTodayDate());
+          const matDate = document.getElementById('matDate');
+          if (matDate) matDate.value = todayStr;
+
+          updateTypeDatalist();
+
+          // Set 初始一行 (单品模式)
+          initSetRowsForType('single');
+
+          // Tab 切换
+          document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const name = btn.getAttribute('data-tab');
+              switchTab(name);
+            });
+          });
+
+          // 作品模式切换
+          document.querySelectorAll('#typeSwitch button').forEach(btn => {
+            btn.addEventListener('click', () => {
+              document.querySelectorAll('#typeSwitch button').forEach(b => b.classList.remove('active'));
+              btn.classList.add('active');
+              initSetRowsForType(btn.getAttribute('data-type'));
+            });
+          });
+
+          // 添加 Set 子制品
+          document.getElementById('btnAddRow').addEventListener('click', () => {
+            addSetRow();
+          });
+
+          // 价格表
+          document.getElementById('btnPrice').addEventListener('click', () => {
+            renderPriceTable();
+            openModal('priceModal');
+          });
+          document.getElementById('btnAddPriceRow').addEventListener('click', () => {
+            addPriceRow();
+          });
+          document.getElementById('btnSavePrice').addEventListener('click', () => {
+            savePriceTableFromUI();
+          });
+
+          // 导出 / 导入
+          document.getElementById('btnExport').addEventListener('click', exportBackup);
+          document.getElementById('btnImport').addEventListener('click', () => {
+            document.getElementById('fileImport').click();
+          });
+          document.getElementById('fileImport').addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (file) importBackup(file);
+            e.target.value = '';
+          });
+
+          // 图片上传
+          document.getElementById('btnPickWorkImg').addEventListener('click', () => {
+            document.getElementById('workImagesInput').click();
+          });
+          document.getElementById('workImagesInput').addEventListener('change', e => {
+            handleImageFiles(e.target.files, workImgBuffer, renderWorkPreview, 10);
+            e.target.value = '';
+          });
+
+          document.getElementById('btnPickFeedbackImg').addEventListener('click', () => {
+            document.getElementById('feedbackImagesInput').click();
+          });
+          document.getElementById('feedbackImagesInput').addEventListener('change', e => {
+            handleImageFiles(e.target.files, feedbackImgBuffer, renderFeedbackPreview, 10);
+            e.target.value = '';
+          });
+
+          // 表单提交
+          document.getElementById('workForm').addEventListener('submit', handleWorkSubmit);
+          document.getElementById('matForm').addEventListener('submit', handleMatSubmit);
+
+          // 金额联动
+          document.getElementById('workDiscount').addEventListener('input', recalcWorkAmountFromRaw);
+          document.getElementById('workRaw').addEventListener('input', recalcWorkAmountFromRaw);
+
+          // 编辑状态取消
+          document.getElementById('btnCancelEdit').addEventListener('click', () => {
+            editingWorkId = null;
+            document.getElementById('editBar').classList.remove('show');
+            document.getElementById('btnSubmitWork').textContent = '提交作品收入';
+            clearWorkForm();
+          });
+
+          // 日历
+          document.getElementById('btnPrevMonth').addEventListener('click', () => changeMonth(-1));
+          document.getElementById('btnNextMonth').addEventListener('click', () => changeMonth(1));
+          document.getElementById('monthInput').addEventListener('change', e => {
+            const val = e.target.value;
+            if (!val) return;
+            const [y, m] = val.split('-').map(Number);
+            if (!y || !m) return;
+            currentMonthDate = new Date(y, m - 1, 1);
+            renderCalendar();
+          });
+
+          // Modal 关闭按钮
+          document.querySelectorAll('.modal-close').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const id = btn.getAttribute('data-close');
+              if (id) closeModal(id);
+            });
+          });
+
+          // 详情页底部按钮
+          document.getElementById('btnEditDetail').addEventListener('click', startEditFromDetail);
+          document.getElementById('btnDeleteDetail').addEventListener('click', deleteFromDetail);
+
+          // 排序 select
+          document.getElementById('selSortWorks').addEventListener('change', renderGallery);
+          document.getElementById('selSortMat').addEventListener('change', renderMaterials);
+          document.getElementById('selClientSort').addEventListener('change', renderClients);
+
+          // 初始渲染
+          renderAll();
+        });
+    });
+  </script>
+</body>
+</html>
