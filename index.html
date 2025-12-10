@@ -1621,29 +1621,34 @@
       return base + ' ' + idx;
     }
 
-    // === 新增：排序与重命名核心逻辑 ===
     function renumberWorks(attr, type, firstItemName) {
-      // 1. 确定“基准名” (例如：今屿 Set 或 今屿 Logo)
+      // 1. 确定“基准名”
       const baseNameStr = attr + ' ' + (type === 'set' ? 'set' : firstItemName);
 
-      // 2. 找出所有属于这个基准名的作品
+      // 2. 找出同组作品
       const group = db.works.filter(w => {
         const wFirst = (w.items && w.items[0] && w.items[0].name) ? w.items[0].name : '作品';
-        // 属性相同 且 (都是Set 或 首制品名相同)
         return w.attr === attr && (
            (type === 'set' && w.type === 'set') || 
            (type === 'single' && w.type === 'single' && wFirst === firstItemName)
         );
       });
 
-      // 3. 核心排序逻辑：定稿日期 > 排单日期 > 创建时间
+      // 3. 排序核心：日期越早，排在越前面（Index越小，编号越小）
       group.sort((a, b) => {
-        const tA = a.date || a.due || a.createdAt || '9999';
-        const tB = b.date || b.due || b.createdAt || '9999';
+        // 获取有效日期：优先 定稿日 > 排单日 > 创建时间
+        // 如果数据完全缺失，用 '9999' 垫底
+        const tA = a.date || a.due || a.createdAt || '9999-12-31';
+        const tB = b.date || b.due || b.createdAt || '9999-12-31';
+
+        // ★★★ 核心修正点 ★★★
+        // tA.localeCompare(tB) = 升序 (Old -> New)
+        // 2023-01-01 会排在 2023-12-31 前面
         return tA.localeCompare(tB);
       });
 
       // 4. 重新分配编号
+      // 排在第一个的（最早的）获得 #1
       group.forEach((w, index) => {
         w.autoName = baseNameStr + ' ' + (index + 1);
       });
