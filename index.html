@@ -2142,7 +2142,8 @@
       const finished = db.works.filter(w => !!w.date);
       const map = {};
 
-      // 1. 按时间倒序
+      // 1. 【核心逻辑】先按时间倒序排列 (新 -> 旧)
+      // 这样遍历时遇到的第一个作品，就是日期最晚的作品
       const sortedWorks = [...finished].sort((a, b) => 
         (b.date || b.createdAt).localeCompare(a.date || a.createdAt)
       );
@@ -2151,7 +2152,8 @@
         const items = w.items || [];
         const rawImages = w.images || [];
         
-        // 构建图片池：如果有总览图，去掉最后一张
+        // 准备图片池：如果有总览图，暂时去掉最后一张
+        // (防止把宣图当成制品图)
         let pool = [...rawImages];
         if (w.hasOverview && pool.length > 0) {
           pool.pop(); 
@@ -2166,15 +2168,22 @@
           if (!map[name]) {
             map[name] = { name, count: 0, cover: null };
           }
+          // 统计数量
           map[name].count++;
 
-          // 2. 设置相册大封面
+          // 2. 【核心逻辑】设置封面
+          // 只有当封面还是 null 的时候才设置（保证只取最新的那一张）
+          // 如果最新的作品没图，封面就是 null，下次循环会看第二新的作品，直到找到图为止
           if (!map[name].cover && hasImages) {
-            let targetIndex = itemIndex;
-            if (targetIndex >= pool.length) targetIndex = pool.length - 1;
             
-            if (targetIndex >= 0 && pool[targetIndex]) {
-               map[name].cover = pool[targetIndex];
+            // A计划：尝试找对应位置的图 (制品排第2，就找第2张图)
+            if (pool[itemIndex]) {
+               map[name].cover = pool[itemIndex];
+            } 
+            // B计划 (兜底)：对应位置没图？那就用该作品的第一张图
+            // 这样能最大程度避免“暂无预览”
+            else if (pool.length > 0) {
+               map[name].cover = pool[0];
             }
           }
         });
@@ -2195,11 +2204,11 @@
         const card = document.createElement('div');
         card.className = 'card-item';
         
+        // 点击进入相册，传入制品名
         card.onclick = () => {
           const worksInAlbum = db.works.filter(w => 
             !!w.date && (w.items || []).some(it => it.name === al.name)
           );
-          // 【改动点】这里把 al.name (制品名) 单独传进去，比如 "手幅"
           openWorksModal(al.name, worksInAlbum); 
         };
 
@@ -2211,6 +2220,7 @@
           img.src = al.cover;
           imgDiv.appendChild(img);
         } else {
+          // 只有当所有包含这个制品的作品真的都没图时，才会显示这个
           imgDiv.innerHTML = '<div class="card-img-empty">暂无预览</div>';
         }
         card.appendChild(imgDiv);
@@ -2227,10 +2237,10 @@
       });
     }
 
+    // === 最终确认版：相册详情弹窗 ===
     function openWorksModal(filterName, worksList) {
-      // filterName 就是你点的相册名，比如 "Logo" 或 "手幅"
       const title = document.getElementById('clientModalTitle');
-      title.textContent = filterName + ' 合集'; // 标题
+      title.textContent = filterName + ' 合集'; 
       
       const container = document.getElementById('clientWorksList');
       container.innerHTML = ''; 
@@ -2243,6 +2253,7 @@
         grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(120px, 1fr))';
         grid.style.gap = '10px';
         
+        // 按时间倒序排列
         const sorted = [...worksList].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
         
         sorted.forEach(w => {
@@ -2253,18 +2264,16 @@
           const imgDiv = document.createElement('div');
           imgDiv.className = 'card-img';
           
-          // === 核心修复逻辑开始 ===
+          // === 核心找图逻辑 ===
           let imgSrc = null;
           
-          // 1. 准备图片池 (排除总览图)
+          // 1. 准备“单品图片池” (如果勾选了总览，先把最后一张藏起来)
           let pool = [...(w.images || [])];
           if (w.hasOverview && pool.length > 0) pool.pop();
           
-          // 2. 找到 "手幅" 在这个作品的制品列表里排第几？
+          // 2. 确定当前制品排老几？
           const items = w.items || [];
           let targetIndex = -1;
-          
-          // 遍历查找名字匹配的制品
           for(let i=0; i<items.length; i++) {
              if(items[i].name === filterName) {
                  targetIndex = i;
@@ -2272,19 +2281,22 @@
              }
           }
 
-          // 3. 如果找到了位置，且图片池里有对应的图
+          // === 优先级判断 ===
+          
+          // 情况 A: 精准匹配 (第2个制品找第2张单品图)
           if (targetIndex !== -1 && targetIndex < pool.length) {
               imgSrc = pool[targetIndex];
           } 
-          // 4. 兜底：如果没对上 (比如忘了传第2张图)，还是显示个东西比较好，就显示第一张
+          // 情况 B: 没对上，但有其他单品图 (显示第1张单品图)
           else if (pool.length > 0) {
               imgSrc = pool[0];
           } 
-          // 5. 如果连单品图都没有，最后试一下总览图
+          // 情况 C: 单品池空了 (说明只有一张图且它是总览图)，那就显示总览图
           else if (w.images && w.images.length > 0) {
               imgSrc = w.images[0];
           }
 
+          // 渲染图片
           if (imgSrc) {
              const img = document.createElement('img');
              img.src = imgSrc;
@@ -2292,7 +2304,7 @@
           } else {
              imgDiv.innerHTML = '<div class="card-img-empty">无图</div>';
           }
-          // === 核心修复逻辑结束 ===
+          // === 逻辑结束 ===
 
           item.appendChild(imgDiv);
           
