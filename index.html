@@ -2142,8 +2142,7 @@
       const finished = db.works.filter(w => !!w.date);
       const map = {};
 
-      // 1. 【核心逻辑】先按时间倒序排列 (新 -> 旧)
-      // 这样遍历时遇到的第一个作品，就是日期最晚的作品
+      // 1. 按时间倒序 (新 -> 旧)
       const sortedWorks = [...finished].sort((a, b) => 
         (b.date || b.createdAt).localeCompare(a.date || a.createdAt)
       );
@@ -2152,14 +2151,14 @@
         const items = w.items || [];
         const rawImages = w.images || [];
         
-        // 准备图片池：如果有总览图，暂时去掉最后一张
-        // (防止把宣图当成制品图)
-        let pool = [...rawImages];
-        if (w.hasOverview && pool.length > 0) {
-          pool.pop(); 
+        // === 关键修改：把总览图单独提取出来，而不是直接丢弃 ===
+        let specificPool = [...rawImages]; // 用于精准匹配的池子
+        let overviewImg = null;            // 暂存总览图
+
+        if (w.hasOverview && rawImages.length > 0) {
+          // 如果有总览，把它从池子里拿出来，存到 overviewImg 变量里
+          overviewImg = specificPool.pop(); 
         }
-        
-        const hasImages = pool.length > 0;
         
         items.forEach((it, itemIndex) => {
           const name = (it.name || '未命名制品').trim();
@@ -2168,22 +2167,23 @@
           if (!map[name]) {
             map[name] = { name, count: 0, cover: null };
           }
-          // 统计数量
           map[name].count++;
 
-          // 2. 【核心逻辑】设置封面
-          // 只有当封面还是 null 的时候才设置（保证只取最新的那一张）
-          // 如果最新的作品没图，封面就是 null，下次循环会看第二新的作品，直到找到图为止
-          if (!map[name].cover && hasImages) {
+          // 2. 设置封面逻辑
+          // 如果还没有封面，就尝试找一张
+          if (!map[name].cover) {
             
-            // A计划：尝试找对应位置的图 (制品排第2，就找第2张图)
-            if (pool[itemIndex]) {
-               map[name].cover = pool[itemIndex];
+            // 第一优先级：找对应位置的单品图 (pool[0]对应A, pool[1]对应B...)
+            if (specificPool[itemIndex]) {
+               map[name].cover = specificPool[itemIndex];
             } 
-            // B计划 (兜底)：对应位置没图？那就用该作品的第一张图
-            // 这样能最大程度避免“暂无预览”
-            else if (pool.length > 0) {
-               map[name].cover = pool[0];
+            // 第二优先级：没对应上，但池子里有别的单品图，拿第一张凑数
+            else if (specificPool.length > 0) {
+               map[name].cover = specificPool[0];
+            }
+            // 第三优先级 (新增)：单品图一张都没，但是有总览图！那就用总览图！
+            else if (overviewImg) {
+               map[name].cover = overviewImg;
             }
           }
         });
@@ -2204,7 +2204,6 @@
         const card = document.createElement('div');
         card.className = 'card-item';
         
-        // 点击进入相册，传入制品名
         card.onclick = () => {
           const worksInAlbum = db.works.filter(w => 
             !!w.date && (w.items || []).some(it => it.name === al.name)
@@ -2220,7 +2219,6 @@
           img.src = al.cover;
           imgDiv.appendChild(img);
         } else {
-          // 只有当所有包含这个制品的作品真的都没图时，才会显示这个
           imgDiv.innerHTML = '<div class="card-img-empty">暂无预览</div>';
         }
         card.appendChild(imgDiv);
