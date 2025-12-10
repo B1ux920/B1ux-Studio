@@ -1997,9 +1997,6 @@
       });
     }
 
-    // ========= 作品集 & 制品相册 =========
-    // === 请替换 function renderGallery() ===
-
     function renderGallery() {
       const finished = db.works.filter(w => !!w.date);
       const grid = document.getElementById('workGrid');
@@ -2032,7 +2029,7 @@
           const card = document.createElement('div');
           card.className = 'card-item';
           
-          // === 拖拽功能 ===
+          // 拖拽逻辑保持不变
           if (sortMode === 'custom') {
             card.draggable = true;
             card.dataset.id = w.id;
@@ -2063,9 +2060,9 @@
 
           card.onclick = () => openDetail(w.id);
 
-          // === 1. 图片部分 (核心拼图逻辑) ===
+          // === 1. 图片部分 ===
           const imgDiv = document.createElement('div');
-          imgDiv.className = 'card-img'; // 这里会被 CSS 强制设为正方形
+          imgDiv.className = 'card-img'; 
 
           const imgs = w.images || [];
           const count = imgs.length;
@@ -2081,9 +2078,24 @@
             
             for (let i = 0; i < gridSize; i++) {
               const img = document.createElement('img');
-              // 循环取图
-              img.src = imgs[i % count]; 
-              // 注意：CSS 会自动处理 object-fit: cover 把它变成正方形
+              
+              // === 核心修改：针对只有2张图的特殊排列 ===
+              if (count === 2 && gridSize === 4) {
+                // 目标效果：
+                // 左上(0):图1  右上(1):图2
+                // 左下(2):图2  右下(3):图1
+                
+                if (i === 0 || i === 3) {
+                    img.src = imgs[0]; // 第一张
+                } else {
+                    img.src = imgs[1]; // 第二张
+                }
+              } 
+              // === 其他情况保持原样 (按顺序循环) ===
+              else {
+                img.src = imgs[i % count]; 
+              }
+              
               gridDiv.appendChild(img);
             }
             imgDiv.appendChild(gridDiv);
@@ -2337,7 +2349,7 @@
       
       openModal('clientModal');
     }
-    
+
     // ========= 素材库 =========
     function renderMaterials() {
       const grid = document.getElementById('matGrid');
