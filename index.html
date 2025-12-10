@@ -1621,7 +1621,35 @@
       return base + ' ' + idx;
     }
 
-    // ========= 作品提交 =========
+    // === 新增：排序与重命名核心逻辑 ===
+    function renumberWorks(attr, type, firstItemName) {
+      // 1. 确定“基准名” (例如：今屿 Set 或 今屿 Logo)
+      const baseNameStr = attr + ' ' + (type === 'set' ? 'set' : firstItemName);
+
+      // 2. 找出所有属于这个基准名的作品
+      const group = db.works.filter(w => {
+        const wFirst = (w.items && w.items[0] && w.items[0].name) ? w.items[0].name : '作品';
+        // 属性相同 且 (都是Set 或 首制品名相同)
+        return w.attr === attr && (
+           (type === 'set' && w.type === 'set') || 
+           (type === 'single' && w.type === 'single' && wFirst === firstItemName)
+        );
+      });
+
+      // 3. 核心排序逻辑：定稿日期 > 排单日期 > 创建时间
+      group.sort((a, b) => {
+        const tA = a.date || a.due || a.createdAt || '9999';
+        const tB = b.date || b.due || b.createdAt || '9999';
+        return tA.localeCompare(tB);
+      });
+
+      // 4. 重新分配编号
+      group.forEach((w, index) => {
+        w.autoName = baseNameStr + ' ' + (index + 1);
+      });
+    }
+
+    // === 修改后：提交作品函数 ===
     function handleWorkSubmit(e) {
       e.preventDefault();
       const attr = document.getElementById('workAttr').value.trim();
@@ -1659,8 +1687,7 @@
         const name = row.querySelector('.row-name').value.trim() || '未命名制品';
         const subtype = row.querySelector('.row-subtype').value;
         const price = parseFloat(row.querySelector('.row-price').value || '0');
-        
-        // 新增保存字段
+        // 获取倍率和自定义倍率
         const rate = row.querySelector('.row-rate').value;
         const customRate = row.querySelector('.row-rate-custom').value;
 
@@ -1672,74 +1699,55 @@
         return;
       }
 
-      // 若原价没填，从制品单价汇总
       if (!raw) {
         raw = items.reduce((sum, it) => sum + (it.price || 0), 0);
       }
-
-      // === 请在 handleWorkSubmit 函数内部修改这部分 ===
       
       const images = [...workImgBuffer];
       const feedback = feedbackImgBuffer.map(src => ({ src, category: 'product' }));
-      
-      // 新增：获取是否勾选了“最后一张为总览图”
       const hasOverview = document.getElementById('chkOverview').checked;
-
-      const autoName = generateAutoName(attr, type, items, editingWorkId);
       const now = getBeijingNow().toISOString();
 
-      // 在下方的 db.works.push 或 db.works[idx] = ... 中
-      // 务必把 hasOverview: hasOverview 加进去
-      
+      // 构建当前作品对象
+      const newWorkObj = {
+        id: editingWorkId != null ? editingWorkId : nextId(db.works),
+        attr,
+        client,
+        usage,
+        visibility,
+        raw,
+        discount,
+        amount,
+        date: dateStr || null,
+        due: dueStr || null,
+        remark,
+        type,
+        items,
+        images,
+        feedback,
+        pinned: false, // 默认值
+        hasOverview,
+        createdAt: editingWorkId != null ? undefined : now // 编辑时不改创建时间
+      };
+
+      // 1. 先保存/更新数据进数组
       if (editingWorkId != null) {
         const idx = db.works.findIndex(w => w.id === editingWorkId);
         if (idx !== -1) {
-          const old = db.works[idx];
-          db.works[idx] = {
-            ...old,
-            attr,
-            client,
-            usage,
-            visibility,
-            raw,
-            discount,
-            amount,
-            date: dateStr || null,
-            due: dueStr || null,
-            remark,
-            type,
-            items,
-            images,
-            feedback,
-            autoName,
-            hasOverview // <--- 新增
-          };
+          // 保留旧的 pinned 状态和 createdAt
+          newWorkObj.pinned = db.works[idx].pinned;
+          newWorkObj.createdAt = db.works[idx].createdAt;
+          db.works[idx] = newWorkObj;
         }
       } else {
-        const id = nextId(db.works);
-        db.works.push({
-          id,
-          attr,
-          client,
-          usage,
-          visibility,
-          raw,
-          discount,
-          amount,
-          date: dateStr || null,
-          due: dueStr || null,
-          remark,
-          type,
-          items,
-          images,
-          feedback,
-          autoName,
-          pinned: false,
-          hasOverview, // <--- 新增
-          createdAt: now
-        });
+        db.works.push(newWorkObj);
       }
 
+      // 2. 【关键】数据入库后，立刻触发全组重新排序命名
+      const firstItemName = items[0] ? items[0].name : '作品';
+      renumberWorks(attr, type, firstItemName);
+
+      // 3. 清理收尾
       editingWorkId = null;
       detailCurrentId = null;
       document.getElementById('editBar').classList.remove('show');
@@ -1747,7 +1755,7 @@
 
       saveData().then(() => {
         renderAll();
-        alert('✅ 作品已保存');
+        alert('✅ 作品已保存，并已按时间自动重新编号');
         clearWorkForm();
       });
     }
