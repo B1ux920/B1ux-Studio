@@ -2142,24 +2142,26 @@
       const finished = db.works.filter(w => !!w.date);
       const map = {};
 
-      // 1. 按时间倒序 (新 -> 旧)
+      // 按时间倒序 (新 -> 旧)
       const sortedWorks = [...finished].sort((a, b) => 
         (b.date || b.createdAt).localeCompare(a.date || a.createdAt)
       );
 
       sortedWorks.forEach(w => {
         const items = w.items || [];
-        const rawImages = w.images || [];
+        const allImages = w.images || []; // 拿到所有图片
         
-        // === 关键修改：把总览图单独提取出来，而不是直接丢弃 ===
-        let specificPool = [...rawImages]; // 用于精准匹配的池子
-        let overviewImg = null;            // 暂存总览图
+        // === 逻辑重写：不修改原数组，通过计算来取图 ===
+        
+        // 1. 确定有没有总览图
+        // 如果勾选了 hasOverview 且至少有一张图，那最后一张就是总览
+        const hasOverview = w.hasOverview && allImages.length > 0;
+        const overviewImg = hasOverview ? allImages[allImages.length - 1] : null;
+        
+        // 2. 确定“单品图片池”的数量
+        // 如果有总览，单品图数量就是 总数-1；否则就是 总数
+        const productImgCount = hasOverview ? allImages.length - 1 : allImages.length;
 
-        if (w.hasOverview && rawImages.length > 0) {
-          // 如果有总览，把它从池子里拿出来，存到 overviewImg 变量里
-          overviewImg = specificPool.pop(); 
-        }
-        
         items.forEach((it, itemIndex) => {
           const name = (it.name || '未命名制品').trim();
           if (!name) return;
@@ -2169,21 +2171,36 @@
           }
           map[name].count++;
 
-          // 2. 设置封面逻辑
-          // 如果还没有封面，就尝试找一张
+          // 3. 设置封面（只要还没定下来，就尝试定下来）
           if (!map[name].cover) {
-            
-            // 第一优先级：找对应位置的单品图 (pool[0]对应A, pool[1]对应B...)
-            if (specificPool[itemIndex]) {
-               map[name].cover = specificPool[itemIndex];
-            } 
-            // 第二优先级：没对应上，但池子里有别的单品图，拿第一张凑数
-            else if (specificPool.length > 0) {
-               map[name].cover = specificPool[0];
+            let candidate = null;
+
+            // 优先级 A：精准匹配 (找第 itemIndex 张图)
+            // 必须在单品图数量范围内找
+            if (itemIndex < productImgCount) {
+               candidate = allImages[itemIndex];
             }
-            // 第三优先级 (新增)：单品图一张都没，但是有总览图！那就用总览图！
+            
+            // 优先级 B：没对上，但有其他单品图 (拿第1张凑数)
+            // 只要单品池子里有图，就拿第一张
+            else if (productImgCount > 0) {
+               candidate = allImages[0];
+            }
+            
+            // 优先级 C：单品池空了，但是有总览图 (拿总览图凑数)
             else if (overviewImg) {
-               map[name].cover = overviewImg;
+               candidate = overviewImg;
+            }
+            
+            // 优先级 D：如果都没勾选总览，但就是只有一张图，不管三七二十一先拿来用
+            // 防止用户忘了勾选 hasOverview 导致判定失效
+            else if (allImages.length > 0) {
+               candidate = allImages[0];
+            }
+
+            // 找到了就赋值
+            if (candidate) {
+              map[name].cover = candidate;
             }
           }
         });
@@ -2203,7 +2220,6 @@
       entries.forEach(al => {
         const card = document.createElement('div');
         card.className = 'card-item';
-        
         card.onclick = () => {
           const worksInAlbum = db.works.filter(w => 
             !!w.date && (w.items || []).some(it => it.name === al.name)
@@ -2235,7 +2251,6 @@
       });
     }
 
-    // === 最终确认版：相册详情弹窗 ===
     function openWorksModal(filterName, worksList) {
       const title = document.getElementById('clientModalTitle');
       title.textContent = filterName + ' 合集'; 
@@ -2251,7 +2266,6 @@
         grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(120px, 1fr))';
         grid.style.gap = '10px';
         
-        // 按时间倒序排列
         const sorted = [...worksList].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
         
         sorted.forEach(w => {
@@ -2262,14 +2276,13 @@
           const imgDiv = document.createElement('div');
           imgDiv.className = 'card-img';
           
-          // === 核心找图逻辑 ===
-          let imgSrc = null;
+          // === 逻辑重写：与 renderAlbums 保持完全一致 ===
+          const allImages = w.images || [];
+          const hasOverview = w.hasOverview && allImages.length > 0;
+          const overviewImg = hasOverview ? allImages[allImages.length - 1] : null;
+          const productImgCount = hasOverview ? allImages.length - 1 : allImages.length;
           
-          // 1. 准备“单品图片池” (如果勾选了总览，先把最后一张藏起来)
-          let pool = [...(w.images || [])];
-          if (w.hasOverview && pool.length > 0) pool.pop();
-          
-          // 2. 确定当前制品排老几？
+          // 找到当前制品的位置
           const items = w.items || [];
           let targetIndex = -1;
           for(let i=0; i<items.length; i++) {
@@ -2279,30 +2292,32 @@
              }
           }
 
-          // === 优先级判断 ===
+          let candidate = null;
           
-          // 情况 A: 精准匹配 (第2个制品找第2张单品图)
-          if (targetIndex !== -1 && targetIndex < pool.length) {
-              imgSrc = pool[targetIndex];
-          } 
-          // 情况 B: 没对上，但有其他单品图 (显示第1张单品图)
-          else if (pool.length > 0) {
-              imgSrc = pool[0];
-          } 
-          // 情况 C: 单品池空了 (说明只有一张图且它是总览图)，那就显示总览图
-          else if (w.images && w.images.length > 0) {
-              imgSrc = w.images[0];
+          // 优先级 A
+          if (targetIndex !== -1 && targetIndex < productImgCount) {
+              candidate = allImages[targetIndex];
+          }
+          // 优先级 B
+          else if (productImgCount > 0) {
+              candidate = allImages[0];
+          }
+          // 优先级 C
+          else if (overviewImg) {
+              candidate = overviewImg;
+          }
+          // 优先级 D
+          else if (allImages.length > 0) {
+              candidate = allImages[0];
           }
 
-          // 渲染图片
-          if (imgSrc) {
+          if (candidate) {
              const img = document.createElement('img');
-             img.src = imgSrc;
+             img.src = candidate;
              imgDiv.appendChild(img);
           } else {
              imgDiv.innerHTML = '<div class="card-img-empty">无图</div>';
           }
-          // === 逻辑结束 ===
 
           item.appendChild(imgDiv);
           
@@ -2322,7 +2337,7 @@
       
       openModal('clientModal');
     }
-
+    
     // ========= 素材库 =========
     function renderMaterials() {
       const grid = document.getElementById('matGrid');
